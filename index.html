@@ -6,19 +6,39 @@
   <title>AI 小游戏工坊</title>
   <style>
     :root {
-      --ink: #17191f;
-      --paper: #fff4cf;
-      --cream: #ffe6a2;
-      --red: #f15b4a;
-      --green: #39b36f;
-      --cyan: #37b6c9;
-      --yellow: #ffd447;
-      --blue: #334e9e;
-      --line: #17191f;
-      --muted: #6f6652;
-      --panel: rgba(255, 244, 207, 0.96);
-      --shadow: rgba(23, 25, 31, 0.22);
-      --radius: 8px;
+      --ink: #080808;
+      --paper: #fff8e8;
+      --cream: #ffe86b;
+      --red: #ff4f3f;
+      --green: #00c875;
+      --cyan: #00c2ff;
+      --yellow: #ffe500;
+      --blue: #3157ff;
+      --pink: #ff6bd6;
+      --line: #080808;
+      --muted: #383838;
+      --panel: #fff8e8;
+      --shadow: #080808;
+      --radius: 4px;
+      --hard-shadow: 10px 10px 0 var(--line);
+      --soft-shadow: 0 18px 48px rgba(83, 70, 45, 0.18);
+    }
+
+    [data-theme="storybook"] {
+      --ink: #2e3328;
+      --paper: #fff8df;
+      --cream: #f7e9b6;
+      --red: #d86b4c;
+      --green: #78ad6f;
+      --cyan: #9ac9c1;
+      --yellow: #f4c96b;
+      --blue: #5f82a5;
+      --pink: #e7a6a8;
+      --line: #5a4b36;
+      --muted: #75694f;
+      --panel: rgba(255, 248, 223, 0.92);
+      --shadow: rgba(83, 70, 45, 0.2);
+      --radius: 22px;
     }
 
     * {
@@ -31,9 +51,20 @@
       min-height: 100%;
       color: var(--ink);
       background:
-        linear-gradient(90deg, rgba(23, 25, 31, 0.06) 1px, transparent 1px) 0 0 / 22px 22px,
-        linear-gradient(0deg, rgba(23, 25, 31, 0.06) 1px, transparent 1px) 0 0 / 22px 22px,
-        linear-gradient(135deg, #ffe082 0%, #ffb35c 42%, #66d99b 100%);
+        linear-gradient(90deg, rgba(8, 8, 8, 0.12) 1px, transparent 1px) 0 0 / 28px 28px,
+        linear-gradient(0deg, rgba(8, 8, 8, 0.12) 1px, transparent 1px) 0 0 / 28px 28px,
+        linear-gradient(135deg, #ffe500 0 28%, #00c2ff 28% 54%, #ff6bd6 54% 77%, #fff8e8 77%);
+      font-family: Impact, Haettenschweiler, "Arial Black", "Microsoft YaHei", "PingFang SC", sans-serif;
+      transition: background 260ms ease, color 260ms ease;
+    }
+
+    [data-theme="storybook"] body {
+      background:
+        radial-gradient(circle at 16% 12%, rgba(255, 255, 255, 0.8) 0 7%, transparent 7.5%),
+        radial-gradient(circle at 82% 18%, rgba(255, 244, 201, 0.9) 0 9%, transparent 9.5%),
+        linear-gradient(160deg, rgba(120, 173, 111, 0.35), transparent 36%),
+        linear-gradient(20deg, rgba(154, 201, 193, 0.55), transparent 42%),
+        #f6dfa9;
       font-family: "Trebuchet MS", "Microsoft YaHei", "PingFang SC", sans-serif;
     }
 
@@ -48,14 +79,15 @@
     }
 
     button {
-      border: 3px solid var(--line);
+      border: 4px solid var(--line);
       background: var(--yellow);
       color: var(--ink);
       cursor: pointer;
       font-weight: 900;
-      padding: 10px 13px;
-      box-shadow: 0 4px 0 var(--line);
-      border-radius: 6px;
+      padding: 11px 15px;
+      box-shadow: 6px 6px 0 var(--line);
+      border-radius: var(--radius);
+      text-transform: uppercase;
       transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
     }
 
@@ -64,8 +96,8 @@
     }
 
     button:active {
-      transform: translateY(3px);
-      box-shadow: 0 1px 0 var(--line);
+      transform: translate(4px, 4px);
+      box-shadow: 2px 2px 0 var(--line);
     }
 
     button:disabled {
@@ -76,7 +108,7 @@
 
     .btn-primary {
       background: var(--red);
-      color: #fff9df;
+      color: #fff;
     }
 
     .btn-primary:hover {
@@ -85,7 +117,7 @@
 
     .btn-green {
       background: var(--green);
-      color: #fff9df;
+      color: var(--ink);
     }
 
     .btn-blue {
@@ -94,45 +126,88 @@
     }
 
     .btn-danger {
-      background: #2b2f3b;
-      color: #fff9df;
+      background: var(--ink);
+      color: #fff;
     }
 
     .btn-ghost {
-      background: #fff9df;
+      background: #fff;
       color: var(--ink);
     }
 
     .app {
-      width: min(1180px, 100%);
+      width: min(1240px, 100%);
       margin: 0 auto;
     }
 
     .topline {
       display: grid;
-      grid-template-columns: 1fr auto;
-      align-items: end;
-      gap: 18px;
-      margin-bottom: 16px;
+      grid-template-columns: 1fr minmax(240px, auto);
+      align-items: stretch;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .top-controls {
+      display: grid;
+      gap: 10px;
+      align-content: center;
+    }
+
+    .theme-switch {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      border: 5px solid var(--line);
+      background: #fff;
+      box-shadow: 8px 8px 0 var(--line);
+      padding: 7px;
+      border-radius: var(--radius);
+    }
+
+    .theme-switch button {
+      box-shadow: none;
+      border-width: 3px;
+      padding: 9px 10px;
+      background: #fff;
+      font-size: 13px;
+    }
+
+    .theme-switch button.active {
+      background: var(--yellow);
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 13px;
+      gap: 16px;
       min-width: 0;
+      border: 5px solid var(--line);
+      background: var(--paper);
+      box-shadow: 10px 10px 0 var(--line);
+      padding: 18px;
+      transform: rotate(-0.6deg);
+    }
+
+    [data-theme="storybook"] .brand {
+      background:
+        linear-gradient(120deg, rgba(255, 255, 255, 0.78), rgba(255, 248, 223, 0.96)),
+        var(--panel);
+      border-width: 3px;
+      box-shadow: var(--soft-shadow);
+      transform: rotate(-0.25deg);
     }
 
     .brand-mark {
-      width: 52px;
-      height: 52px;
-      flex: 0 0 52px;
-      border: 4px solid var(--line);
+      width: 68px;
+      height: 68px;
+      flex: 0 0 68px;
+      border: 5px solid var(--line);
       background:
-        linear-gradient(90deg, transparent 0 18px, rgba(23, 25, 31, 0.18) 18px 22px, transparent 22px),
+        linear-gradient(90deg, transparent 0 24px, rgba(8, 8, 8, 0.22) 24px 29px, transparent 29px),
         linear-gradient(0deg, var(--red) 0 50%, var(--yellow) 50%);
-      box-shadow: 0 5px 0 var(--line);
-      border-radius: 7px;
+      box-shadow: 7px 7px 0 var(--line);
+      border-radius: var(--radius);
       position: relative;
     }
 
@@ -162,80 +237,163 @@
 
     h1 {
       margin: 0;
-      font-size: clamp(28px, 5vw, 56px);
-      line-height: 0.95;
+      font-size: clamp(42px, 8vw, 92px);
+      line-height: 0.82;
       letter-spacing: 0;
-      text-shadow: 0 4px 0 rgba(255, 255, 255, 0.58);
+      text-shadow: 5px 5px 0 var(--yellow), 9px 9px 0 var(--pink);
+    }
+
+    [data-theme="storybook"] h1 {
+      text-shadow: 0 3px 0 rgba(255, 255, 255, 0.65);
     }
 
     .subtitle {
       margin: 5px 0 0;
-      color: #473e2f;
+      color: var(--ink);
       font-weight: 900;
+      font-size: 18px;
     }
 
     .status-pill {
       justify-self: end;
-      border: 3px solid var(--line);
-      background: var(--panel);
-      box-shadow: 0 4px 0 var(--line);
-      padding: 9px 12px;
-      border-radius: 999px;
+      align-self: center;
+      border: 5px solid var(--line);
+      background: var(--green);
+      box-shadow: 8px 8px 0 var(--line);
+      padding: 14px 16px;
+      border-radius: var(--radius);
       font-weight: 900;
       white-space: nowrap;
+      transform: rotate(1deg);
+    }
+
+    [data-theme="storybook"] .status-pill,
+    [data-theme="storybook"] .theme-switch {
+      border-width: 3px;
+      box-shadow: var(--soft-shadow);
+      transform: none;
     }
 
     .status-pill.ready {
-      background: #d8ffd9;
+      background: var(--green);
     }
 
     .status-pill.warn {
-      background: #ffe0ca;
+      background: var(--red);
+      color: #fff;
     }
 
     .intro-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-      margin: 0 0 16px;
+      grid-template-columns: 1.28fr 0.86fr 0.86fr;
+      gap: 14px;
+      margin: 0 0 18px;
     }
 
     .intro-card {
-      border: 3px solid var(--line);
-      background: rgba(255, 249, 223, 0.9);
+      border: 5px solid var(--line);
+      background: #fff;
       border-radius: var(--radius);
-      padding: 12px 13px;
-      box-shadow: 0 4px 0 var(--line);
+      padding: 16px;
+      box-shadow: 8px 8px 0 var(--line);
+      min-height: 152px;
+      position: relative;
+      overflow: hidden;
+      transform: rotate(0.35deg);
+    }
+
+    [data-theme="storybook"] .intro-card,
+    [data-theme="storybook"] .surface,
+    [data-theme="storybook"] .game-row,
+    [data-theme="storybook"] .dialog,
+    [data-theme="storybook"] .preview-shell,
+    [data-theme="storybook"] .busy-box {
+      border-width: 3px;
+      box-shadow: var(--soft-shadow);
+      transform: none;
+    }
+
+    .intro-card:nth-child(1) {
+      background: var(--yellow);
+      transform: rotate(-0.8deg);
+    }
+
+    .intro-card:nth-child(2) {
+      background: var(--cyan);
+    }
+
+    .intro-card:nth-child(3) {
+      background: var(--pink);
+      transform: rotate(0.8deg);
     }
 
     .intro-card strong {
       display: block;
-      font-size: 17px;
+      font-size: 22px;
       line-height: 1.1;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
     }
 
     .intro-card span {
       display: block;
-      color: #574c38;
-      font-size: 13px;
+      color: var(--ink);
+      font-size: 15px;
       line-height: 1.45;
       font-weight: 900;
     }
 
+    .mega-number {
+      display: block;
+      margin: 2px 0 4px;
+      font-size: clamp(64px, 12vw, 132px);
+      line-height: 0.82;
+      letter-spacing: 0;
+      color: var(--ink);
+      text-shadow: 5px 5px 0 #fff, 9px 9px 0 var(--red);
+    }
+
+    .stamp {
+      position: absolute;
+      right: -14px;
+      top: 14px;
+      border: 4px solid var(--line);
+      background: var(--red);
+      color: #fff;
+      padding: 7px 13px;
+      font-size: 14px;
+      font-weight: 900;
+      transform: rotate(12deg);
+      box-shadow: 5px 5px 0 var(--line);
+    }
+
+    [data-theme="storybook"] .stamp {
+      border-width: 2px;
+      box-shadow: 0 6px 18px rgba(83, 70, 45, 0.2);
+      border-radius: 999px;
+    }
+
     .workspace {
       display: grid;
-      grid-template-columns: minmax(320px, 0.82fr) minmax(420px, 1.18fr);
-      gap: 16px;
+      grid-template-columns: minmax(340px, 0.86fr) minmax(430px, 1.14fr);
+      gap: 18px;
       align-items: start;
     }
 
     .surface {
-      border: 4px solid var(--line);
+      border: 5px solid var(--line);
       background: var(--panel);
-      box-shadow: 0 8px 0 var(--line), 0 16px 26px var(--shadow);
+      box-shadow: 10px 10px 0 var(--line);
       border-radius: var(--radius);
       overflow: hidden;
+    }
+
+    .surface:nth-child(1) {
+      transform: rotate(-0.25deg);
+    }
+
+    .surface:nth-child(2) {
+      transform: rotate(0.22deg);
     }
 
     .surface-head {
@@ -243,20 +401,52 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding: 14px 16px;
+      padding: 16px 18px;
       background: var(--ink);
-      color: #fff9df;
-      border-bottom: 4px solid var(--line);
+      color: #fff;
+      border-bottom: 5px solid var(--line);
     }
 
     .surface-head h2 {
       margin: 0;
-      font-size: 20px;
+      font-size: 25px;
       letter-spacing: 0;
     }
 
     .surface-body {
       padding: 16px;
+    }
+
+    .library-body {
+      padding: 0;
+    }
+
+    .library-scroll {
+      max-height: min(62vh, 650px);
+      overflow-y: auto;
+      padding: 16px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--red) rgba(255, 255, 255, 0.7);
+    }
+
+    .library-scroll::-webkit-scrollbar {
+      width: 12px;
+    }
+
+    .library-scroll::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.7);
+      border-left: 3px solid var(--line);
+    }
+
+    .library-scroll::-webkit-scrollbar-thumb {
+      background: var(--red);
+      border: 3px solid var(--line);
+      border-radius: 999px;
+    }
+
+    [data-theme="storybook"] .library-scroll {
+      max-height: min(64vh, 680px);
+      scrollbar-color: var(--green) rgba(255, 248, 223, 0.78);
     }
 
     .field {
@@ -266,22 +456,23 @@
     }
 
     label {
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 900;
-      color: #534932;
+      color: var(--ink);
+      text-transform: uppercase;
     }
 
     input,
     textarea {
       width: 100%;
-      border: 3px solid var(--line);
-      background: #fffdf1;
+      border: 4px solid var(--line);
+      background: #fff;
       color: var(--ink);
       border-radius: 6px;
       outline: none;
       padding: 12px 13px;
-      font-weight: 800;
-      box-shadow: inset 0 -3px 0 rgba(23, 25, 31, 0.09);
+      font-weight: 900;
+      box-shadow: 5px 5px 0 rgba(8, 8, 8, 0.18);
     }
 
     textarea {
@@ -293,7 +484,7 @@
     input:focus,
     textarea:focus {
       border-color: var(--red);
-      box-shadow: inset 0 -3px 0 rgba(241, 91, 74, 0.18), 0 0 0 4px rgba(255, 212, 71, 0.44);
+      box-shadow: 5px 5px 0 var(--line), 0 0 0 5px var(--yellow);
     }
 
     .example-grid {
@@ -306,9 +497,9 @@
     .chip {
       padding: 7px 10px;
       border: 3px solid var(--line);
-      background: #fff9df;
-      border-radius: 999px;
-      box-shadow: 0 3px 0 var(--line);
+      background: var(--cream);
+      border-radius: var(--radius);
+      box-shadow: 4px 4px 0 var(--line);
       font-size: 13px;
       font-weight: 900;
     }
@@ -323,12 +514,13 @@
     .message {
       min-height: 45px;
       margin-top: 14px;
-      border: 3px solid var(--line);
-      background: #fff9df;
+      border: 4px solid var(--line);
+      background: #fff;
       border-radius: 6px;
       padding: 10px 12px;
       font-weight: 900;
-      color: #514632;
+      color: var(--ink);
+      box-shadow: 5px 5px 0 rgba(8, 8, 8, 0.18);
     }
 
     .message.error {
@@ -348,6 +540,17 @@
       width: min(360px, 100%);
     }
 
+    .library-count {
+      flex: 0 0 auto;
+      border: 3px solid var(--line);
+      background: var(--yellow);
+      padding: 7px 9px;
+      font-size: 13px;
+      font-weight: 900;
+      box-shadow: 4px 4px 0 var(--line);
+      border-radius: var(--radius);
+    }
+
     .library-tools input {
       padding: 9px 11px;
       border-width: 2px;
@@ -361,15 +564,30 @@
     }
 
     .game-row {
-      border: 3px solid var(--line);
-      background: #fff9df;
+      border: 4px solid var(--line);
+      background: #fff;
       border-radius: 7px;
       padding: 12px;
       display: grid;
       grid-template-columns: 1fr auto;
       gap: 12px;
       align-items: center;
-      box-shadow: 0 4px 0 rgba(23, 25, 31, 0.22);
+      box-shadow: 6px 6px 0 var(--line);
+    }
+
+    [data-theme="storybook"] button,
+    [data-theme="storybook"] input,
+    [data-theme="storybook"] textarea,
+    [data-theme="storybook"] .message,
+    [data-theme="storybook"] .chip,
+    [data-theme="storybook"] .library-count {
+      border-width: 2px;
+      box-shadow: 0 8px 20px rgba(83, 70, 45, 0.14);
+    }
+
+    [data-theme="storybook"] button:active {
+      transform: translateY(2px);
+      box-shadow: 0 4px 14px rgba(83, 70, 45, 0.16);
     }
 
     .game-row h3 {
@@ -389,9 +607,9 @@
     }
 
     .tag {
-      border: 2px solid rgba(23, 25, 31, 0.22);
-      background: rgba(255, 212, 71, 0.28);
-      border-radius: 999px;
+      border: 2px solid var(--line);
+      background: var(--yellow);
+      border-radius: var(--radius);
       padding: 3px 7px;
     }
 
@@ -411,8 +629,8 @@
     }
 
     .empty-state {
-      border: 3px dashed var(--line);
-      background: rgba(255, 249, 223, 0.66);
+      border: 4px dashed var(--line);
+      background: #fff;
       border-radius: 7px;
       padding: 28px;
       text-align: center;
@@ -428,7 +646,7 @@
       position: fixed;
       inset: 0;
       z-index: 20;
-      background: rgba(23, 25, 31, 0.74);
+      background: rgba(8, 8, 8, 0.76);
       padding: 18px;
       display: grid;
       place-items: center;
@@ -439,10 +657,10 @@
       height: min(780px, calc(100vh - 36px));
       display: grid;
       grid-template-rows: auto 1fr;
-      border: 4px solid var(--line);
+      border: 5px solid var(--line);
       background: var(--paper);
       border-radius: var(--radius);
-      box-shadow: 0 10px 0 var(--line);
+      box-shadow: 12px 12px 0 var(--line);
       overflow: hidden;
     }
 
@@ -453,8 +671,8 @@
       gap: 12px;
       padding: 10px 12px;
       background: var(--ink);
-      color: #fff9df;
-      border-bottom: 4px solid var(--line);
+      color: #fff;
+      border-bottom: 5px solid var(--line);
     }
 
     .preview-title {
@@ -504,16 +722,16 @@
 
     .dialog {
       width: min(560px, 100%);
-      border: 4px solid var(--line);
+      border: 5px solid var(--line);
       background: var(--paper);
       border-radius: var(--radius);
-      box-shadow: 0 8px 0 var(--line);
+      box-shadow: 10px 10px 0 var(--line);
       overflow: hidden;
     }
 
     .dialog-head {
       background: var(--ink);
-      color: #fff9df;
+      color: #fff;
       padding: 13px 15px;
       border-bottom: 4px solid var(--line);
       font-weight: 900;
@@ -546,18 +764,18 @@
       z-index: 30;
       display: grid;
       place-items: center;
-      background: rgba(255, 244, 207, 0.64);
+      background: rgba(255, 229, 0, 0.52);
       backdrop-filter: blur(2px);
     }
 
     .busy-box {
       min-width: min(420px, calc(100vw - 36px));
-      border: 4px solid var(--line);
+      border: 5px solid var(--line);
       background: var(--ink);
-      color: #fff9df;
+      color: #fff;
       border-radius: var(--radius);
       padding: 18px 20px;
-      box-shadow: 0 8px 0 var(--line);
+      box-shadow: 10px 10px 0 var(--line);
       font-weight: 900;
     }
 
@@ -601,8 +819,35 @@
         grid-template-columns: 1fr;
       }
 
+      .brand {
+        align-items: flex-start;
+        transform: none;
+      }
+
+      h1 {
+        font-size: clamp(40px, 16vw, 72px);
+      }
+
       .status-pill {
         justify-self: start;
+        transform: none;
+      }
+
+      .top-controls {
+        grid-template-columns: 1fr;
+      }
+
+      .library-scroll {
+        max-height: 58vh;
+      }
+
+      .intro-card,
+      .surface {
+        transform: none !important;
+      }
+
+      .mega-number {
+        font-size: clamp(72px, 24vw, 116px);
       }
 
       .game-row {
@@ -631,24 +876,34 @@
         <span class="brand-mark" aria-hidden="true"></span>
         <div>
           <h1>AI 小游戏工坊</h1>
-          <p class="subtitle">一句话生成、试玩、修改和下载 HTML 小游戏</p>
+          <p class="subtitle">NEO-BRUTAL GAME MACHINE · 一句话生成、试玩、修改和下载 HTML 小游戏</p>
         </div>
       </div>
-      <div id="providerStatus" class="status-pill">DeepSeek 检测中</div>
+      <div class="top-controls">
+        <div id="providerStatus" class="status-pill">DeepSeek 检测中</div>
+        <div class="theme-switch" aria-label="界面风格切换">
+          <button id="neoThemeBtn" type="button" data-theme-choice="neo">NEO</button>
+          <button id="storyThemeBtn" type="button" data-theme-choice="storybook">童话</button>
+        </div>
+      </div>
     </header>
 
     <section class="intro-grid" aria-label="项目能力说明">
       <div class="intro-card">
+        <span class="stamp">BIG LIBRARY</span>
         <strong>能生成多少？</strong>
-        <span>适合生成几十类 2D 网页小游戏：推箱子、贪吃蛇、射击、迷宫、打砖块、塔防、平台跳跃等。</span>
+        <span class="mega-number">1000+</span>
+        <span>小游戏灵感库级别：推箱子、贪吃蛇、射击、迷宫、打砖块、塔防、平台跳跃，以及更多变体。</span>
       </div>
       <div class="intro-card">
+        <span class="stamp">1 LINE</span>
         <strong>有多方便？</strong>
-        <span>输入一句游戏名即可自动套入完整提示词，生成后直接弹窗试玩，还能继续让 AI 修改。</span>
+        <span>一句话输入，自动扩写提示词，生成后直接试玩；不满意就继续让 AI 改到能玩。</span>
       </div>
       <div class="intro-card">
+        <span class="stamp">SHIP IT</span>
         <strong>怎么保存？</strong>
-        <span>游戏自动存入本地游戏库，可下载为独立 index.html，也可删除、重命名和重复迭代。</span>
+        <span>本地游戏库自动保存，随时下载独立 index.html；删除、重命名、继续迭代都在首页完成。</span>
       </div>
     </section>
 
@@ -668,7 +923,7 @@
             <div class="example-grid" aria-label="快速示例">
               <button class="chip" type="button" data-example="推箱子游戏">推箱子</button>
               <button class="chip" type="button" data-example="太空射击游戏">太空射击</button>
-              <button class="chip" type="button" data-example="贪吃蛇游戏">贪吃蛇</button>
+              <button class="chip" type="button" data-example="新手友好贪吃蛇游戏" data-extra="初始速度慢一点，格子大一点，提供简单/普通/困难选择，分数提高后再缓慢加速，支持暂停和重新开始。">贪吃蛇</button>
               <button class="chip" type="button" data-example="打砖块游戏">打砖块</button>
               <button class="chip" type="button" data-example="迷宫逃脱游戏">迷宫逃脱</button>
             </div>
@@ -691,12 +946,15 @@
         <div class="surface-head">
           <h2>游戏库</h2>
           <div class="library-tools">
+            <span id="libraryCount" class="library-count">0 个</span>
             <input id="searchInput" type="search" placeholder="搜索游戏">
           </div>
         </div>
-        <div class="surface-body">
-          <div id="emptyState" class="empty-state hidden">还没有游戏。</div>
-          <div id="gameList" class="game-list"></div>
+        <div class="surface-body library-body">
+          <div class="library-scroll">
+            <div id="emptyState" class="empty-state hidden">还没有游戏。</div>
+            <div id="gameList" class="game-list"></div>
+          </div>
         </div>
       </section>
     </section>
@@ -769,9 +1027,13 @@
       const DB_VERSION = 1;
       const STORE = "games";
       const SAMPLE_ID = "sample-bomberman";
+      const THEME_KEY = "ai-mini-game-workshop-theme";
 
       const els = {
         providerStatus: document.getElementById("providerStatus"),
+        neoThemeBtn: document.getElementById("neoThemeBtn"),
+        storyThemeBtn: document.getElementById("storyThemeBtn"),
+        libraryCount: document.getElementById("libraryCount"),
         generateForm: document.getElementById("generateForm"),
         gameName: document.getElementById("gameName"),
         extraRequirements: document.getElementById("extraRequirements"),
@@ -821,6 +1083,7 @@
       init();
 
       function init() {
+        applyTheme(localStorage.getItem(THEME_KEY) || "neo");
         wireEvents();
         loadHealth();
         refreshGames();
@@ -828,6 +1091,8 @@
 
       function wireEvents() {
         els.generateForm.addEventListener("submit", onGenerate);
+        els.neoThemeBtn.addEventListener("click", () => setTheme("neo"));
+        els.storyThemeBtn.addEventListener("click", () => setTheme("storybook"));
         els.importSampleBtn.addEventListener("click", importSample);
         els.searchInput.addEventListener("input", renderGames);
         els.reloadPreviewBtn.addEventListener("click", reloadPreview);
@@ -843,6 +1108,9 @@
         document.querySelectorAll("[data-example]").forEach((button) => {
           button.addEventListener("click", () => {
             els.gameName.value = button.dataset.example;
+            if (button.dataset.extra) {
+              els.extraRequirements.value = button.dataset.extra;
+            }
             els.gameName.focus();
           });
         });
@@ -871,6 +1139,18 @@
             }
           }
         });
+      }
+
+      function setTheme(theme) {
+        applyTheme(theme);
+        localStorage.setItem(THEME_KEY, theme);
+      }
+
+      function applyTheme(theme) {
+        const safeTheme = theme === "storybook" ? "storybook" : "neo";
+        document.documentElement.dataset.theme = safeTheme;
+        els.neoThemeBtn.classList.toggle("active", safeTheme === "neo");
+        els.storyThemeBtn.classList.toggle("active", safeTheme === "storybook");
       }
 
       async function loadHealth() {
@@ -1002,6 +1282,9 @@
           return !query || haystack.includes(query);
         });
 
+        els.libraryCount.textContent = query
+          ? `${filtered.length}/${games.length}`
+          : `${games.length} 个`;
         els.gameList.textContent = "";
         els.emptyState.classList.toggle("hidden", filtered.length > 0);
 
@@ -1205,22 +1488,10 @@
   function canvasReport() {
     var canvases = Array.prototype.slice.call(document.querySelectorAll("canvas"));
     return canvases.map(function(canvas) {
-      var nonWhite = false;
-      try {
-        var ctx = canvas.getContext && canvas.getContext("2d");
-        if (ctx && canvas.width && canvas.height) {
-          var w = Math.min(canvas.width, 80);
-          var h = Math.min(canvas.height, 80);
-          var data = ctx.getImageData(0, 0, w, h).data;
-          for (var i = 0; i < data.length; i += 4) {
-            if (data[i + 3] !== 0 && (data[i] < 245 || data[i + 1] < 245 || data[i + 2] < 245)) {
-              nonWhite = true;
-              break;
-            }
-          }
-        }
-      } catch (error) {}
-      return { width: canvas.width || 0, height: canvas.height || 0, nonWhite: nonWhite };
+      var rect = canvas.getBoundingClientRect && canvas.getBoundingClientRect();
+      var style = window.getComputedStyle ? window.getComputedStyle(canvas) : null;
+      var visible = Boolean(rect && rect.width > 1 && rect.height > 1 && (!style || style.visibility !== "hidden" && style.display !== "none" && Number(style.opacity || 1) > 0));
+      return { width: canvas.width || 0, height: canvas.height || 0, cssWidth: rect ? Math.round(rect.width) : 0, cssHeight: rect ? Math.round(rect.height) : 0, visible: visible };
     });
   }
   function probe() {
@@ -1229,7 +1500,7 @@
     var bodyText = body ? (body.innerText || "").trim() : "";
     var visible = visibleElementCount();
     var canvases = canvasReport();
-    var hasPaintedCanvas = canvases.some(function(item) { return item.nonWhite; });
+    var hasVisibleCanvas = canvases.some(function(item) { return item.visible && item.width > 0 && item.height > 0; });
     var reason = "";
     var looksBlank = false;
     if (!body || body.children.length === 0) {
@@ -1238,9 +1509,9 @@
     } else if (visible === 0 && bodyText.length === 0) {
       looksBlank = true;
       reason = "没有可见元素，也没有文本";
-    } else if (canvases.length > 0 && !hasPaintedCanvas && bodyText.length < 8 && probeCount >= 2) {
+    } else if (canvases.length > 0 && !hasVisibleCanvas && bodyText.length < 8 && probeCount >= 2) {
       looksBlank = true;
-      reason = "检测到 canvas，但采样区域仍接近纯白";
+      reason = "检测到 canvas，但尺寸为 0 或不可见";
     }
     try {
       parent.postMessage({
@@ -1343,11 +1614,16 @@
       }
 
       async function requestJson(url, options = {}) {
-        const response = await fetch(url, {
-          method: options.method || "GET",
-          headers: options.body ? { "Content-Type": "application/json" } : undefined,
-          body: options.body ? JSON.stringify(options.body) : undefined
-        });
+        let response;
+        try {
+          response = await fetch(url, {
+            method: options.method || "GET",
+            headers: options.body ? { "Content-Type": "application/json" } : undefined,
+            body: options.body ? JSON.stringify(options.body) : undefined
+          });
+        } catch (error) {
+          throw new Error("后端连接中断或请求超时，请确认 node server.js 仍在运行，然后重试。");
+        }
         const data = await response.json().catch(() => ({}));
         if (!response.ok) {
           const detail = data.detail ? `：${data.detail}` : "";

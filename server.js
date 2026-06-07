@@ -8,10 +8,12 @@ const { URL } = require("url");
 loadDotEnv();
 
 const ROOT = __dirname;
+const LOG_FILE = path.join(ROOT, "server.log");
 const PORT = Number(process.env.PORT || 8787);
 const MAX_BODY_BYTES = Number(process.env.MAX_BODY_BYTES || 2_000_000);
 const DEEPSEEK_BASE_URL = trimTrailingSlash(process.env.DEEPSEEK_BASE_URL || "https://api.deepseek.com");
 const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL || "deepseek-v4-pro";
+const DEEPSEEK_FALLBACK_MODEL = process.env.DEEPSEEK_FALLBACK_MODEL || "deepseek-v4-flash";
 const DEEPSEEK_THINKING = process.env.DEEPSEEK_THINKING || "enabled";
 const DEEPSEEK_REASONING_EFFORT = process.env.DEEPSEEK_REASONING_EFFORT || "high";
 const DEEPSEEK_MAX_TOKENS = Number(process.env.DEEPSEEK_MAX_TOKENS || 24000);
@@ -44,8 +46,18 @@ const generatorInstructions = `
 - 所有初始化代码必须等待 DOM 可用或放在 body 末尾；如果使用 canvas，必须设置明确 width/height，并在第一帧立刻绘制非空画面。
 - 不要引用不存在的 DOM id、图片、音频或资源；不要让任何启动异常导致白屏。
 - body 中必须有可见的游戏标题、HUD 或开始界面作为兜底，即使 canvas 绘制失败也不能是纯白空页面。
+- 如果生成推箱子、迷宫、解谜或关卡制益智游戏，所有关卡必须可解；不要把目标点放在只能从墙内侧推动的位置；关卡数据旁要用简短注释写一条示例解法或设计意图。
 
 输出内容必须是最终 HTML，不要出现“下面是代码”等说明。
+`.trim();
+
+const difficultyInstructions = `
+Difficulty rules:
+- Default to beginner-friendly gameplay unless the user explicitly asks for hard mode.
+- For Snake games, use a slow initial tick, large readable grid cells, gentle speed growth, pause/restart controls, and optional Easy/Normal/Hard difficulty selection.
+- For reaction games, shooters, dodgers, and arcade games, begin slowly and increase difficulty gradually.
+- Avoid failure in the first few seconds unless the player makes a clear mistake.
+- When modifying an existing game because it is too hard, reduce speed, soften acceleration, add difficulty controls, and keep the original visual style.
 `.trim();
 
 function buildGeneratePrompt(gameName, extraRequirements) {
@@ -61,6 +73,7 @@ function buildGeneratePrompt(gameName, extraRequirements) {
 - 游戏要尽量完整好玩，而不是静态演示。
 - 必须保证打开后首屏不是白屏：立即显示标题、HUD、画布或棋盘，并且即使等待用户按键也要有可见场景。
 - 首屏必须至少包含一个非白背景区域和可见文本，不能只依赖后续异步逻辑才显示内容。
+- 如果是推箱子游戏，前 3 关必须非常明确可解，避免箱子贴死角、目标侧面被墙封死、玩家无法到达推箱所需站位。
 
 用户补充要求：
 ${extraRequirements || "无"}
@@ -96,11 +109,17 @@ const server = http.createServer(async (req, res) => {
       return sendNoContent(res);
     }
 
+    if (req.method === "GET" && url.pathname === "/favicon.ico") {
+      res.writeHead(204, { "Cache-Control": "public, max-age=86400" });
+      return res.end();
+    }
+
     if (req.method === "GET" && url.pathname === "/api/health") {
       return sendJson(res, {
         ok: true,
         provider: "deepseek",
         model: DEEPSEEK_MODEL,
+        fallbackModel: DEEPSEEK_FALLBACK_MODEL,
         baseUrl: DEEPSEEK_BASE_URL,
         hasKey: Boolean(process.env.DEEPSEEK_API_KEY)
       });
@@ -111,12 +130,12 @@ const server = http.createServer(async (req, res) => {
       const gameName = normalizeShortText(body.gameName, "gameName", 80);
       const extraRequirements = normalizeOptionalText(body.extraRequirements, 1200);
 
-      const html = await requestGameHtml([
-        { role: "system", content: generatorInstructions },
+      const generated = await requestGameHtml([
+        { role: "system", content: `${generatorInstructions}\n\n${difficultyInstructions}` },
         { role: "user", content: buildGeneratePrompt(gameName, extraRequirements) }
       ]);
 
-      return sendJson(res, { html, model: DEEPSEEK_MODEL });
+      return sendJson(res, { html: generated.html, model: generated.model });
     }
 
     if (req.method === "POST" && url.pathname === "/api/modify") {
@@ -125,12 +144,12 @@ const server = http.createServer(async (req, res) => {
       const instruction = normalizeShortText(body.instruction, "instruction", 1200);
       const htmlInput = normalizeHtmlInput(body.html);
 
-      const html = await requestGameHtml([
-        { role: "system", content: generatorInstructions },
+      const generated = await requestGameHtml([
+        { role: "system", content: `${generatorInstructions}\n\n${difficultyInstructions}` },
         { role: "user", content: buildModifyPrompt(title, htmlInput, instruction) }
       ]);
 
-      return sendJson(res, { html, model: DEEPSEEK_MODEL });
+      return sendJson(res, { html: generated.html, model: generated.model });
     }
 
     if (req.method === "GET") {
@@ -141,10 +160,15 @@ const server = http.createServer(async (req, res) => {
   } catch (error) {
     const status = error.statusCode || 500;
     const message = status >= 500 ? "服务器处理失败" : error.message;
-    if (status >= 500) console.error(error);
+    if (status >= 500) logError(error);
+    if (res.destroyed || res.writableEnded) return;
     return sendJson(res, { error: message, detail: error.publicDetail || undefined }, status);
   }
 });
+
+server.requestTimeout = DEEPSEEK_TIMEOUT_MS + 30000;
+server.headersTimeout = DEEPSEEK_TIMEOUT_MS + 60000;
+server.timeout = DEEPSEEK_TIMEOUT_MS + 30000;
 
 server.listen(PORT, () => {
   console.log(`AI game generator running at http://localhost:${PORT}`);
@@ -180,6 +204,29 @@ function serveStatic(pathname, res) {
 }
 
 async function requestGameHtml(messages) {
+  const models = [DEEPSEEK_MODEL];
+  if (DEEPSEEK_FALLBACK_MODEL && DEEPSEEK_FALLBACK_MODEL !== DEEPSEEK_MODEL) {
+    models.push(DEEPSEEK_FALLBACK_MODEL);
+  }
+
+  let lastError = null;
+  for (const model of models) {
+    try {
+      const html = await requestGameHtmlWithModel(messages, model);
+      return { html, model };
+    } catch (error) {
+      lastError = error;
+      if (!isRetryableDeepSeekError(error) || model === models[models.length - 1]) {
+        throw error;
+      }
+      logError(new Error(`DeepSeek model ${model} failed, retrying with ${models[models.indexOf(model) + 1]}: ${error.message}`));
+    }
+  }
+
+  throw lastError;
+}
+
+async function requestGameHtmlWithModel(messages, model) {
   if (!process.env.DEEPSEEK_API_KEY) {
     const error = new Error("缺少 DEEPSEEK_API_KEY。请先在终端设置 DeepSeek API Key。");
     error.statusCode = 400;
@@ -204,7 +251,7 @@ async function requestGameHtml(messages) {
         "Authorization": `Bearer ${process.env.DEEPSEEK_API_KEY}`
       },
       body: JSON.stringify({
-        model: DEEPSEEK_MODEL,
+        model,
         messages,
         thinking: { type: DEEPSEEK_THINKING },
         reasoning_effort: DEEPSEEK_REASONING_EFFORT,
@@ -248,6 +295,11 @@ async function requestGameHtml(messages) {
   }
 
   return cleanAndValidateHtml(content);
+}
+
+function isRetryableDeepSeekError(error) {
+  if (!error.statusCode) return true;
+  return error.statusCode === 502 || error.statusCode === 504 || error.statusCode >= 500;
 }
 
 function cleanAndValidateHtml(text) {
@@ -347,6 +399,7 @@ function normalizeHtmlInput(value) {
 }
 
 function sendJson(res, payload, statusCode = 200) {
+  if (res.destroyed || res.writableEnded) return;
   const body = JSON.stringify(payload);
   res.writeHead(statusCode, {
     "Content-Type": "application/json; charset=utf-8",
@@ -390,3 +443,22 @@ function loadDotEnv() {
     if (!process.env[key]) process.env[key] = value;
   }
 }
+
+function logError(error) {
+  const line = [
+    new Date().toISOString(),
+    error && error.stack ? error.stack : String(error)
+  ].join(" ");
+  console.error(error);
+  try {
+    fs.appendFileSync(LOG_FILE, line + "\n", "utf8");
+  } catch {}
+}
+
+process.on("uncaughtException", (error) => {
+  logError(error);
+});
+
+process.on("unhandledRejection", (error) => {
+  logError(error);
+});

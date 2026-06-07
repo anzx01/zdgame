@@ -40,6 +40,10 @@ const generatorInstructions = `
 - 视觉风格要清晰、可爱、2D、颜色鲜明；动画反馈要可见。
 - 代码结构要清晰，便于继续修改。
 - 键盘操作要阻止页面滚动；游戏结束或胜利后必须能重新开始。
+- 生成的游戏会在 iframe Blob URL 预览中运行；不要使用 import、export、type="module"、fetch、localStorage、sessionStorage、Web Worker、外链字体或外链图片。
+- 所有初始化代码必须等待 DOM 可用或放在 body 末尾；如果使用 canvas，必须设置明确 width/height，并在第一帧立刻绘制非空画面。
+- 不要引用不存在的 DOM id、图片、音频或资源；不要让任何启动异常导致白屏。
+- body 中必须有可见的游戏标题、HUD 或开始界面作为兜底，即使 canvas 绘制失败也不能是纯白空页面。
 
 输出内容必须是最终 HTML，不要出现“下面是代码”等说明。
 `.trim();
@@ -55,6 +59,8 @@ function buildGeneratePrompt(gameName, extraRequirements) {
 - 使用完整单文件 HTML 实现。
 - 包含完整玩家控制、核心玩法规则、关卡或难度递增、计分/HUD、胜负条件、重新开始按钮和清晰可爱的 2D 动画效果。
 - 游戏要尽量完整好玩，而不是静态演示。
+- 必须保证打开后首屏不是白屏：立即显示标题、HUD、画布或棋盘，并且即使等待用户按键也要有可见场景。
+- 首屏必须至少包含一个非白背景区域和可见文本，不能只依赖后续异步逻辑才显示内容。
 
 用户补充要求：
 ${extraRequirements || "无"}
@@ -72,6 +78,7 @@ function buildModifyPrompt(title, html, instruction) {
 - 保留完整可运行的单文件 HTML 结构。
 - 只按修改要求更新游戏，不要删除无关核心功能。
 - 如果修改涉及玩法，请同步更新 HUD、胜负条件或说明按钮文案。
+- 修复后必须能在 iframe Blob URL 预览中直接显示首屏画面，避免白屏。
 - 只输出修改后的完整 HTML，不要 Markdown，不要解释。
 
 当前 HTML：

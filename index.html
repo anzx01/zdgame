@@ -193,6 +193,36 @@
       background: #ffe0ca;
     }
 
+    .intro-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 0 0 16px;
+    }
+
+    .intro-card {
+      border: 3px solid var(--line);
+      background: rgba(255, 249, 223, 0.9);
+      border-radius: var(--radius);
+      padding: 12px 13px;
+      box-shadow: 0 4px 0 var(--line);
+    }
+
+    .intro-card strong {
+      display: block;
+      font-size: 17px;
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+
+    .intro-card span {
+      display: block;
+      color: #574c38;
+      font-size: 13px;
+      line-height: 1.45;
+      font-weight: 900;
+    }
+
     .workspace {
       display: grid;
       grid-template-columns: minmax(320px, 0.82fr) minmax(420px, 1.18fr);
@@ -449,6 +479,21 @@
       font-size: 13px;
     }
 
+    .preview-notice {
+      display: none;
+      border-bottom: 3px solid var(--line);
+      background: #ffe0dc;
+      color: #7a2018;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-weight: 900;
+      overflow-wrap: anywhere;
+    }
+
+    .preview-notice.visible {
+      display: block;
+    }
+
     iframe {
       width: 100%;
       height: 100%;
@@ -484,6 +529,15 @@
       flex-wrap: wrap;
       gap: 10px;
       margin-top: 14px;
+    }
+
+    .source-view {
+      width: 100%;
+      min-height: min(58vh, 520px);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: pre;
     }
 
     .busy-layer {
@@ -542,6 +596,7 @@
       }
 
       .topline,
+      .intro-grid,
       .workspace {
         grid-template-columns: 1fr;
       }
@@ -581,6 +636,21 @@
       </div>
       <div id="providerStatus" class="status-pill">DeepSeek 检测中</div>
     </header>
+
+    <section class="intro-grid" aria-label="项目能力说明">
+      <div class="intro-card">
+        <strong>能生成多少？</strong>
+        <span>适合生成几十类 2D 网页小游戏：推箱子、贪吃蛇、射击、迷宫、打砖块、塔防、平台跳跃等。</span>
+      </div>
+      <div class="intro-card">
+        <strong>有多方便？</strong>
+        <span>输入一句游戏名即可自动套入完整提示词，生成后直接弹窗试玩，还能继续让 AI 修改。</span>
+      </div>
+      <div class="intro-card">
+        <strong>怎么保存？</strong>
+        <span>游戏自动存入本地游戏库，可下载为独立 index.html，也可删除、重命名和重复迭代。</span>
+      </div>
+    </section>
 
     <section class="workspace">
       <section class="surface" aria-label="生成游戏">
@@ -638,11 +708,15 @@
         <div id="previewTitle" class="preview-title">试玩</div>
         <div class="preview-actions">
           <button id="reloadPreviewBtn" class="btn-blue" type="button">重新加载</button>
+          <button id="repairPreviewBtn" class="btn-primary" type="button">修复白屏</button>
+          <button id="openWindowBtn" class="btn-ghost" type="button">新窗口</button>
+          <button id="viewSourceBtn" class="btn-ghost" type="button">源码</button>
           <button id="downloadPreviewBtn" class="btn-green" type="button">下载</button>
           <button id="closePreviewBtn" class="btn-ghost" type="button">关闭</button>
         </div>
       </div>
-      <iframe id="gamePreview" title="游戏试玩" sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe>
+      <div id="previewNotice" class="preview-notice"></div>
+      <iframe id="gamePreview" title="游戏试玩" referrerpolicy="no-referrer"></iframe>
     </div>
   </div>
 
@@ -660,6 +734,18 @@
         </div>
       </div>
     </form>
+  </div>
+
+  <div id="sourceModal" class="modal hidden" role="dialog" aria-modal="true" aria-label="查看源码">
+    <div class="dialog" style="width:min(980px,100%);">
+      <div class="dialog-head">当前游戏源码</div>
+      <div class="dialog-body">
+        <textarea id="sourceText" class="source-view" readonly></textarea>
+        <div class="dialog-actions">
+          <button id="closeSourceBtn" class="btn-ghost" type="button">关闭</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div id="busyLayer" class="busy-layer hidden">
@@ -697,8 +783,12 @@
         gameList: document.getElementById("gameList"),
         previewModal: document.getElementById("previewModal"),
         previewTitle: document.getElementById("previewTitle"),
+        previewNotice: document.getElementById("previewNotice"),
         gamePreview: document.getElementById("gamePreview"),
         reloadPreviewBtn: document.getElementById("reloadPreviewBtn"),
+        repairPreviewBtn: document.getElementById("repairPreviewBtn"),
+        openWindowBtn: document.getElementById("openWindowBtn"),
+        viewSourceBtn: document.getElementById("viewSourceBtn"),
         downloadPreviewBtn: document.getElementById("downloadPreviewBtn"),
         closePreviewBtn: document.getElementById("closePreviewBtn"),
         editModal: document.getElementById("editModal"),
@@ -707,6 +797,9 @@
         editInstruction: document.getElementById("editInstruction"),
         cancelEditBtn: document.getElementById("cancelEditBtn"),
         submitEditBtn: document.getElementById("submitEditBtn"),
+        sourceModal: document.getElementById("sourceModal"),
+        sourceText: document.getElementById("sourceText"),
+        closeSourceBtn: document.getElementById("closeSourceBtn"),
         busyLayer: document.getElementById("busyLayer"),
         busyText: document.getElementById("busyText"),
         progressFill: document.getElementById("progressFill"),
@@ -717,7 +810,10 @@
       let dbPromise = null;
       let games = [];
       let currentPreview = null;
+      let currentPreviewUrl = "";
       let currentEdit = null;
+      let currentPreviewErrors = [];
+      let currentPreviewDiagnostics = [];
       let progressTimer = null;
       let progressStartedAt = 0;
       let progressEstimateMs = 180000;
@@ -735,10 +831,14 @@
         els.importSampleBtn.addEventListener("click", importSample);
         els.searchInput.addEventListener("input", renderGames);
         els.reloadPreviewBtn.addEventListener("click", reloadPreview);
+        els.repairPreviewBtn.addEventListener("click", repairPreview);
+        els.openWindowBtn.addEventListener("click", openPreviewWindow);
+        els.viewSourceBtn.addEventListener("click", openSource);
         els.downloadPreviewBtn.addEventListener("click", () => currentPreview && downloadGame(currentPreview));
         els.closePreviewBtn.addEventListener("click", closePreview);
         els.cancelEditBtn.addEventListener("click", closeEdit);
         els.editForm.addEventListener("submit", submitEdit);
+        els.closeSourceBtn.addEventListener("click", closeSource);
 
         document.querySelectorAll("[data-example]").forEach((button) => {
           button.addEventListener("click", () => {
@@ -749,8 +849,26 @@
 
         window.addEventListener("keydown", (event) => {
           if (event.key === "Escape") {
-            if (!els.editModal.classList.contains("hidden")) closeEdit();
+            if (!els.sourceModal.classList.contains("hidden")) closeSource();
+            else if (!els.editModal.classList.contains("hidden")) closeEdit();
             else if (!els.previewModal.classList.contains("hidden")) closePreview();
+          }
+        });
+
+        window.addEventListener("message", (event) => {
+          const data = event.data;
+          if (!data || data.source !== "game-preview" || !currentPreview) return;
+          if (data.type === "error" || data.type === "unhandledrejection") {
+            const message = String(data.message || "未知脚本错误");
+            currentPreviewErrors.push(message);
+            currentPreviewErrors = currentPreviewErrors.slice(-6);
+            showPreviewNotice(`游戏脚本报错：${message}。可以点击“修复白屏”。`);
+          } else if (data.type === "probe") {
+            currentPreviewDiagnostics.push(JSON.stringify(data.report));
+            currentPreviewDiagnostics = currentPreviewDiagnostics.slice(-8);
+            if (data.report && data.report.looksBlank) {
+              showPreviewNotice(`试玩已加载，但检测到画面可能为空白：${data.report.reason}。可以点“新窗口”判断是否为 iframe 问题，或点“修复白屏”。`);
+            }
           }
         });
       }
@@ -941,27 +1059,242 @@
 
       function openPreview(game) {
         currentPreview = game;
+        currentPreviewErrors = [];
+        currentPreviewDiagnostics = [];
+        clearPreviewNotice();
         els.previewTitle.textContent = `${game.title} · v${game.version || 1}`;
-        els.gamePreview.srcdoc = "";
+        clearPreviewFrame();
         els.previewModal.classList.remove("hidden");
         setTimeout(() => {
-          els.gamePreview.srcdoc = game.html;
+          renderPreviewFrame(game.html);
           els.gamePreview.focus();
         }, 0);
       }
 
       function reloadPreview() {
         if (!currentPreview) return;
-        els.gamePreview.srcdoc = "";
+        currentPreviewErrors = [];
+        currentPreviewDiagnostics = [];
+        clearPreviewNotice();
+        clearPreviewFrame();
         setTimeout(() => {
-          els.gamePreview.srcdoc = currentPreview.html;
+          renderPreviewFrame(currentPreview.html);
         }, 0);
       }
 
       function closePreview() {
         els.previewModal.classList.add("hidden");
-        els.gamePreview.srcdoc = "";
+        clearPreviewFrame();
         currentPreview = null;
+        currentPreviewErrors = [];
+        currentPreviewDiagnostics = [];
+        clearPreviewNotice();
+      }
+
+      function renderPreviewFrame(html) {
+        clearPreviewFrame();
+        const blob = new Blob([instrumentPreviewHtml(html)], { type: "text/html;charset=utf-8" });
+        currentPreviewUrl = URL.createObjectURL(blob);
+        els.gamePreview.removeAttribute("srcdoc");
+        els.gamePreview.removeAttribute("sandbox");
+        els.gamePreview.src = currentPreviewUrl;
+      }
+
+      function clearPreviewFrame() {
+        els.gamePreview.removeAttribute("srcdoc");
+        els.gamePreview.src = "about:blank";
+        if (currentPreviewUrl) {
+          URL.revokeObjectURL(currentPreviewUrl);
+          currentPreviewUrl = "";
+        }
+      }
+
+      async function repairPreview() {
+        if (!currentPreview) return;
+        const errorText = currentPreviewErrors.length
+          ? currentPreviewErrors.join("\n")
+          : "预览 iframe 显示白屏，可能是初始化、Canvas 绘制、脚本异常或页面尺寸问题。";
+        const diagnosticText = currentPreviewDiagnostics.length
+          ? currentPreviewDiagnostics.join("\n")
+          : "没有收到 iframe 自检数据。";
+        setBusy(true, "DeepSeek 正在修复白屏", 210000);
+        try {
+          const data = await requestJson("/api/modify", {
+            method: "POST",
+            body: {
+              title: currentPreview.title,
+              html: currentPreview.html,
+              instruction: [
+                "修复这个游戏在 iframe 试玩窗口中白屏的问题。",
+                "要求：启动后必须立刻显示可见画面；如果脚本报错请修复；如果没有报错但 body/canvas 为空，请补齐 DOM、Canvas 尺寸和首帧绘制；不要使用外部资源、import、fetch、localStorage、sessionStorage 或 module script；保留完整单文件 HTML。",
+                "已捕获错误：",
+                errorText,
+                "iframe 自检数据：",
+                diagnosticText
+              ].join("\n")
+            }
+          });
+
+          const updated = {
+            ...currentPreview,
+            html: data.html,
+            version: Number(currentPreview.version || 1) + 1,
+            updatedAt: new Date().toISOString()
+          };
+          await putGame(updated);
+          await refreshGames();
+          openPreview(updated);
+          showMessage(`已尝试修复：${updated.title}`, "ok");
+        } catch (error) {
+          showMessage(error.message, "error");
+        } finally {
+          setBusy(false);
+        }
+      }
+
+      function openPreviewWindow() {
+        if (!currentPreview) return;
+        const win = window.open("", "_blank");
+        if (!win) {
+          showPreviewNotice("浏览器拦截了新窗口。请允许弹窗，或使用“下载”后直接打开 index.html。");
+          return;
+        }
+        win.document.open();
+        win.document.write(currentPreview.html);
+        win.document.close();
+      }
+
+      function openSource() {
+        if (!currentPreview) return;
+        els.sourceText.value = currentPreview.html;
+        els.sourceModal.classList.remove("hidden");
+        setTimeout(() => els.sourceText.focus(), 0);
+      }
+
+      function closeSource() {
+        els.sourceModal.classList.add("hidden");
+        els.sourceText.value = "";
+      }
+
+      function instrumentPreviewHtml(html) {
+        const script = `<script>
+(function(){
+  var probeCount = 0;
+  function send(type, message, source, lineno, colno) {
+    try {
+      parent.postMessage({
+        source: "game-preview",
+        type: type,
+        message: String(message || ""),
+        location: [source || "", lineno || 0, colno || 0].join(":")
+      }, "*");
+    } catch (error) {}
+  }
+  function visibleElementCount() {
+    var count = 0;
+    var nodes = Array.prototype.slice.call(document.body ? document.body.querySelectorAll("*") : []);
+    nodes.forEach(function(node) {
+      var rect = node.getBoundingClientRect && node.getBoundingClientRect();
+      var style = window.getComputedStyle ? window.getComputedStyle(node) : null;
+      if (rect && rect.width > 1 && rect.height > 1 && (!style || style.visibility !== "hidden" && style.display !== "none" && Number(style.opacity || 1) > 0)) {
+        count += 1;
+      }
+    });
+    return count;
+  }
+  function canvasReport() {
+    var canvases = Array.prototype.slice.call(document.querySelectorAll("canvas"));
+    return canvases.map(function(canvas) {
+      var nonWhite = false;
+      try {
+        var ctx = canvas.getContext && canvas.getContext("2d");
+        if (ctx && canvas.width && canvas.height) {
+          var w = Math.min(canvas.width, 80);
+          var h = Math.min(canvas.height, 80);
+          var data = ctx.getImageData(0, 0, w, h).data;
+          for (var i = 0; i < data.length; i += 4) {
+            if (data[i + 3] !== 0 && (data[i] < 245 || data[i + 1] < 245 || data[i + 2] < 245)) {
+              nonWhite = true;
+              break;
+            }
+          }
+        }
+      } catch (error) {}
+      return { width: canvas.width || 0, height: canvas.height || 0, nonWhite: nonWhite };
+    });
+  }
+  function probe() {
+    probeCount += 1;
+    var body = document.body;
+    var bodyText = body ? (body.innerText || "").trim() : "";
+    var visible = visibleElementCount();
+    var canvases = canvasReport();
+    var hasPaintedCanvas = canvases.some(function(item) { return item.nonWhite; });
+    var reason = "";
+    var looksBlank = false;
+    if (!body || body.children.length === 0) {
+      looksBlank = true;
+      reason = "body 没有任何子元素";
+    } else if (visible === 0 && bodyText.length === 0) {
+      looksBlank = true;
+      reason = "没有可见元素，也没有文本";
+    } else if (canvases.length > 0 && !hasPaintedCanvas && bodyText.length < 8 && probeCount >= 2) {
+      looksBlank = true;
+      reason = "检测到 canvas，但采样区域仍接近纯白";
+    }
+    try {
+      parent.postMessage({
+        source: "game-preview",
+        type: "probe",
+        report: {
+          probeCount: probeCount,
+          readyState: document.readyState,
+          title: document.title || "",
+          bodyChildren: body ? body.children.length : 0,
+          bodyTextLength: bodyText.length,
+          visibleElements: visible,
+          canvases: canvases,
+          viewport: { width: window.innerWidth, height: window.innerHeight },
+          looksBlank: looksBlank,
+          reason: reason || "未发现明显空白"
+        }
+      }, "*");
+    } catch (error) {}
+  }
+  window.addEventListener("error", function(event) {
+    send("error", event.message, event.filename, event.lineno, event.colno);
+  });
+  window.addEventListener("unhandledrejection", function(event) {
+    var reason = event.reason;
+    send("unhandledrejection", reason && (reason.stack || reason.message) || reason || "Unhandled promise rejection");
+  });
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", probe);
+  } else {
+    setTimeout(probe, 0);
+  }
+  window.addEventListener("load", function() { setTimeout(probe, 80); });
+  setTimeout(probe, 1200);
+  setTimeout(probe, 3200);
+})();
+<\/script>`;
+        if (/<head[^>]*>/i.test(html)) {
+          return html.replace(/<head([^>]*)>/i, `<head$1>${script}`);
+        }
+        if (/<html[^>]*>/i.test(html)) {
+          return html.replace(/<html([^>]*)>/i, `<html$1><head>${script}</head>`);
+        }
+        return script + html;
+      }
+
+      function showPreviewNotice(text) {
+        els.previewNotice.textContent = text;
+        els.previewNotice.classList.add("visible");
+      }
+
+      function clearPreviewNotice() {
+        els.previewNotice.textContent = "";
+        els.previewNotice.classList.remove("visible");
       }
 
       function openEdit(game) {

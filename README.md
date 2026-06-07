@@ -8,7 +8,7 @@
 
 - 一句话生成可运行的 HTML 小游戏
 - 使用 DeepSeek API，API Key 只保存在后端 `.env`
-- 生成后自动弹出 iframe 试玩窗口
+- 生成后自动弹出 iframe 试玩窗口，使用 Blob URL 兼容预览
 - 支持下载生成的 `index.html`
 - 支持删除、重命名、AI 修改已有游戏
 - 使用 IndexedDB 保存浏览器本地游戏库
@@ -106,7 +106,7 @@ http://localhost:8787
 - 不要把真实 API Key 写进前端 HTML
 - `.env` 已加入 `.gitignore`
 - 前端只通过后端接口调用 DeepSeek
-- 生成的游戏通过 `iframe sandbox="allow-scripts"` 隔离运行
+- 生成的游戏通过 iframe 预览运行；为避开部分浏览器插件对 `about:srcdoc`/`null` origin 的干扰，当前使用 Blob URL 兼容预览
 
 ## 常见问题
 

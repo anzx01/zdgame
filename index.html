@@ -3,17 +3,22 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>炸弹花园</title>
+  <title>AI 小游戏工坊</title>
   <style>
     :root {
-      --ink: #25304a;
-      --paper: #fff7d7;
-      --mint: #55d68b;
-      --sky: #61b8ff;
-      --berry: #ff6b8a;
-      --gold: #ffd35c;
-      --panel: rgba(255, 247, 215, 0.92);
-      --shadow: rgba(37, 48, 74, 0.25);
+      --ink: #17191f;
+      --paper: #fff4cf;
+      --cream: #ffe6a2;
+      --red: #f15b4a;
+      --green: #39b36f;
+      --cyan: #37b6c9;
+      --yellow: #ffd447;
+      --blue: #334e9e;
+      --line: #17191f;
+      --muted: #6f6652;
+      --panel: rgba(255, 244, 207, 0.96);
+      --shadow: rgba(23, 25, 31, 0.22);
+      --radius: 8px;
     }
 
     * {
@@ -24,1079 +29,1128 @@
     body {
       margin: 0;
       min-height: 100%;
-      background:
-        linear-gradient(90deg, rgba(255,255,255,0.18) 1px, transparent 1px) 0 0 / 24px 24px,
-        linear-gradient(0deg, rgba(255,255,255,0.18) 1px, transparent 1px) 0 0 / 24px 24px,
-        #9be879;
       color: var(--ink);
-      font-family: "Trebuchet MS", "Microsoft YaHei", system-ui, sans-serif;
+      background:
+        linear-gradient(90deg, rgba(23, 25, 31, 0.06) 1px, transparent 1px) 0 0 / 22px 22px,
+        linear-gradient(0deg, rgba(23, 25, 31, 0.06) 1px, transparent 1px) 0 0 / 22px 22px,
+        linear-gradient(135deg, #ffe082 0%, #ffb35c 42%, #66d99b 100%);
+      font-family: "Trebuchet MS", "Microsoft YaHei", "PingFang SC", sans-serif;
     }
 
     body {
-      display: grid;
-      place-items: center;
       padding: 18px;
     }
 
-    .game-shell {
-      width: min(96vw, 760px);
-      position: relative;
+    button,
+    input,
+    textarea {
+      font: inherit;
     }
 
-    .topbar {
+    button {
+      border: 3px solid var(--line);
+      background: var(--yellow);
+      color: var(--ink);
+      cursor: pointer;
+      font-weight: 900;
+      padding: 10px 13px;
+      box-shadow: 0 4px 0 var(--line);
+      border-radius: 6px;
+      transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+    }
+
+    button:hover {
+      background: #ffe377;
+    }
+
+    button:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 var(--line);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.58;
+      transform: none;
+    }
+
+    .btn-primary {
+      background: var(--red);
+      color: #fff9df;
+    }
+
+    .btn-primary:hover {
+      background: #ff725f;
+    }
+
+    .btn-green {
+      background: var(--green);
+      color: #fff9df;
+    }
+
+    .btn-blue {
+      background: var(--cyan);
+      color: #fff;
+    }
+
+    .btn-danger {
+      background: #2b2f3b;
+      color: #fff9df;
+    }
+
+    .btn-ghost {
+      background: #fff9df;
+      color: var(--ink);
+    }
+
+    .app {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+    }
+
+    .topline {
       display: grid;
       grid-template-columns: 1fr auto;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 10px;
+      align-items: end;
+      gap: 18px;
+      margin-bottom: 16px;
     }
 
     .brand {
       display: flex;
       align-items: center;
+      gap: 13px;
       min-width: 0;
-      gap: 10px;
-      font-weight: 900;
-      font-size: clamp(20px, 4vw, 34px);
-      letter-spacing: 0;
-      text-shadow: 0 3px 0 rgba(255, 255, 255, 0.6);
     }
 
     .brand-mark {
-      width: 36px;
-      height: 36px;
-      flex: 0 0 36px;
-      border: 4px solid var(--ink);
-      background: var(--gold);
-      box-shadow: 0 4px 0 var(--ink);
+      width: 52px;
+      height: 52px;
+      flex: 0 0 52px;
+      border: 4px solid var(--line);
+      background:
+        linear-gradient(90deg, transparent 0 18px, rgba(23, 25, 31, 0.18) 18px 22px, transparent 22px),
+        linear-gradient(0deg, var(--red) 0 50%, var(--yellow) 50%);
+      box-shadow: 0 5px 0 var(--line);
+      border-radius: 7px;
       position: relative;
     }
 
-    .brand-mark::before {
+    .brand-mark::before,
+    .brand-mark::after {
       content: "";
       position: absolute;
-      width: 11px;
-      height: 11px;
-      border-radius: 50%;
-      right: 4px;
-      top: 4px;
-      background: #ff845e;
+      background: var(--ink);
     }
 
-    .hud {
+    .brand-mark::before {
+      width: 16px;
+      height: 7px;
+      left: 8px;
+      top: 11px;
+      box-shadow: 21px 0 0 var(--ink), 10px 22px 0 var(--ink);
+    }
+
+    .brand-mark::after {
+      width: 8px;
+      height: 8px;
+      right: 8px;
+      bottom: 8px;
+      background: var(--cyan);
+      border: 3px solid var(--ink);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 5vw, 56px);
+      line-height: 0.95;
+      letter-spacing: 0;
+      text-shadow: 0 4px 0 rgba(255, 255, 255, 0.58);
+    }
+
+    .subtitle {
+      margin: 5px 0 0;
+      color: #473e2f;
+      font-weight: 900;
+    }
+
+    .status-pill {
+      justify-self: end;
+      border: 3px solid var(--line);
+      background: var(--panel);
+      box-shadow: 0 4px 0 var(--line);
+      padding: 9px 12px;
+      border-radius: 999px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .status-pill.ready {
+      background: #d8ffd9;
+    }
+
+    .status-pill.warn {
+      background: #ffe0ca;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(320px, 0.82fr) minmax(420px, 1.18fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .surface {
+      border: 4px solid var(--line);
+      background: var(--panel);
+      box-shadow: 0 8px 0 var(--line), 0 16px 26px var(--shadow);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .surface-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--ink);
+      color: #fff9df;
+      border-bottom: 4px solid var(--line);
+    }
+
+    .surface-head h2 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: 0;
+    }
+
+    .surface-body {
+      padding: 16px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+      margin-bottom: 14px;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 900;
+      color: #534932;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border: 3px solid var(--line);
+      background: #fffdf1;
+      color: var(--ink);
+      border-radius: 6px;
+      outline: none;
+      padding: 12px 13px;
+      font-weight: 800;
+      box-shadow: inset 0 -3px 0 rgba(23, 25, 31, 0.09);
+    }
+
+    textarea {
+      min-height: 116px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: var(--red);
+      box-shadow: inset 0 -3px 0 rgba(241, 91, 74, 0.18), 0 0 0 4px rgba(255, 212, 71, 0.44);
+    }
+
+    .example-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 6px 0 16px;
+    }
+
+    .chip {
+      padding: 7px 10px;
+      border: 3px solid var(--line);
+      background: #fff9df;
+      border-radius: 999px;
+      box-shadow: 0 3px 0 var(--line);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .message {
+      min-height: 45px;
+      margin-top: 14px;
+      border: 3px solid var(--line);
+      background: #fff9df;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-weight: 900;
+      color: #514632;
+    }
+
+    .message.error {
+      background: #ffe0dc;
+      color: #7a2018;
+    }
+
+    .message.ok {
+      background: #dcffe4;
+      color: #155c33;
+    }
+
+    .library-tools {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: min(360px, 100%);
+    }
+
+    .library-tools input {
+      padding: 9px 11px;
+      border-width: 2px;
+      box-shadow: none;
+      font-size: 14px;
+    }
+
+    .game-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .game-row {
+      border: 3px solid var(--line);
+      background: #fff9df;
+      border-radius: 7px;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      box-shadow: 0 4px 0 rgba(23, 25, 31, 0.22);
+    }
+
+    .game-row h3 {
+      margin: 0 0 5px;
+      font-size: 20px;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .tag {
+      border: 2px solid rgba(23, 25, 31, 0.22);
+      background: rgba(255, 212, 71, 0.28);
+      border-radius: 999px;
+      padding: 3px 7px;
+    }
+
+    .row-actions {
       display: flex;
       flex-wrap: wrap;
       justify-content: flex-end;
       gap: 8px;
+      max-width: 320px;
     }
 
-    .stat {
-      min-width: 84px;
-      padding: 7px 10px;
-      border: 3px solid var(--ink);
-      background: var(--panel);
-      box-shadow: 0 4px 0 var(--ink);
+    .row-actions button {
+      padding: 8px 10px;
+      font-size: 13px;
+      border-width: 2px;
+      box-shadow: 0 3px 0 var(--line);
+    }
+
+    .empty-state {
+      border: 3px dashed var(--line);
+      background: rgba(255, 249, 223, 0.66);
+      border-radius: 7px;
+      padding: 28px;
       text-align: center;
-    }
-
-    .stat small {
-      display: block;
-      font-size: 11px;
-      line-height: 1;
-      opacity: 0.72;
-      font-weight: 800;
-    }
-
-    .stat strong {
-      display: block;
-      margin-top: 2px;
-      font-size: 18px;
-      line-height: 1;
       font-weight: 900;
+      color: #554b38;
     }
 
-    .board-wrap {
-      position: relative;
-      border: 6px solid var(--ink);
-      background: #7cc96f;
-      box-shadow: 0 12px 0 var(--ink), 0 20px 34px var(--shadow);
+    .hidden {
+      display: none !important;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      background: rgba(23, 25, 31, 0.74);
+      padding: 18px;
+      display: grid;
+      place-items: center;
+    }
+
+    .preview-shell {
+      width: min(1180px, 100%);
+      height: min(780px, calc(100vh - 36px));
+      display: grid;
+      grid-template-rows: auto 1fr;
+      border: 4px solid var(--line);
+      background: var(--paper);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 0 var(--line);
       overflow: hidden;
     }
 
-    canvas {
-      width: 100%;
-      height: auto;
-      display: block;
-      image-rendering: pixelated;
-      background: #9be879;
-    }
-
-    .overlay {
-      position: absolute;
-      inset: 0;
+    .preview-bar {
       display: grid;
-      place-items: center;
-      padding: 24px;
-      background: rgba(37, 48, 74, 0.42);
-      transition: opacity 180ms ease;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      background: var(--ink);
+      color: #fff9df;
+      border-bottom: 4px solid var(--line);
     }
 
-    .overlay.hidden {
-      opacity: 0;
-      pointer-events: none;
+    .preview-title {
+      min-width: 0;
+      font-weight: 900;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .preview-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: end;
+      gap: 8px;
+    }
+
+    .preview-actions button {
+      padding: 8px 10px;
+      border-width: 2px;
+      box-shadow: 0 3px 0 var(--line);
+      font-size: 13px;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #fff;
+      display: block;
     }
 
     .dialog {
-      width: min(92%, 360px);
-      border: 5px solid var(--ink);
+      width: min(560px, 100%);
+      border: 4px solid var(--line);
       background: var(--paper);
-      box-shadow: 0 8px 0 var(--ink);
-      padding: 22px;
-      text-align: center;
+      border-radius: var(--radius);
+      box-shadow: 0 8px 0 var(--line);
+      overflow: hidden;
     }
 
-    .dialog h1 {
-      margin: 0 0 10px;
-      font-size: clamp(26px, 8vw, 42px);
-      line-height: 1;
-      letter-spacing: 0;
+    .dialog-head {
+      background: var(--ink);
+      color: #fff9df;
+      padding: 13px 15px;
+      border-bottom: 4px solid var(--line);
+      font-weight: 900;
     }
 
-    .dialog p {
-      margin: 0 0 16px;
-      font-weight: 800;
-      line-height: 1.45;
+    .dialog-body {
+      padding: 16px;
     }
 
-    button {
-      appearance: none;
-      border: 4px solid var(--ink);
-      background: var(--berry);
-      color: #fff;
-      cursor: pointer;
-      font: 900 18px/1 "Microsoft YaHei", system-ui, sans-serif;
-      padding: 12px 18px;
-      box-shadow: 0 5px 0 var(--ink);
+    .dialog-actions {
+      display: flex;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
     }
 
-    button:active {
-      transform: translateY(4px);
-      box-shadow: 0 1px 0 var(--ink);
+    .busy-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: grid;
+      place-items: center;
+      background: rgba(255, 244, 207, 0.64);
+      backdrop-filter: blur(2px);
     }
 
-    @media (max-width: 640px) {
+    .busy-box {
+      min-width: min(420px, calc(100vw - 36px));
+      border: 4px solid var(--line);
+      background: var(--ink);
+      color: #fff9df;
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      box-shadow: 0 8px 0 var(--line);
+      font-weight: 900;
+    }
+
+    .busy-title {
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+
+    .progress-track {
+      height: 18px;
+      border: 3px solid #fff9df;
+      background: rgba(255, 249, 223, 0.14);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--yellow), var(--green), var(--cyan));
+      transition: width 360ms ease;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 10px;
+      color: #fff4cf;
+      font-size: 13px;
+    }
+
+    @media (max-width: 900px) {
       body {
         padding: 10px;
-        align-items: start;
       }
 
-      .topbar {
+      .topline,
+      .workspace {
         grid-template-columns: 1fr;
       }
 
-      .hud {
-        justify-content: stretch;
+      .status-pill {
+        justify-self: start;
       }
 
-      .stat {
-        flex: 1 1 45%;
+      .game-row {
+        grid-template-columns: 1fr;
       }
 
-      .board-wrap {
-        border-width: 4px;
-        box-shadow: 0 8px 0 var(--ink), 0 14px 24px var(--shadow);
+      .row-actions {
+        justify-content: start;
+        max-width: none;
+      }
+
+      .preview-bar {
+        grid-template-columns: 1fr;
+      }
+
+      .preview-actions {
+        justify-content: start;
       }
     }
   </style>
 </head>
 <body>
-  <main class="game-shell">
-    <section class="topbar" aria-label="游戏状态">
-      <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span>炸弹花园</span></div>
-      <div class="hud">
-        <div class="stat"><small>得分</small><strong id="score">0</strong></div>
-        <div class="stat"><small>关卡</small><strong id="level">1</strong></div>
-        <div class="stat"><small>炸弹</small><strong id="bombs">1</strong></div>
-        <div class="stat"><small>无敌</small><strong id="shield">0.0s</strong></div>
-      </div>
-    </section>
-
-    <section class="board-wrap" aria-label="炸弹人游戏画面">
-      <canvas id="game" width="624" height="528"></canvas>
-      <div id="overlay" class="overlay hidden">
-        <div class="dialog" role="dialog" aria-modal="true">
-          <h1 id="overlayTitle">游戏结束</h1>
-          <p id="overlayText">得分 0</p>
-          <button id="restartBtn" type="button">重新开始</button>
+  <main class="app">
+    <header class="topline">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <div>
+          <h1>AI 小游戏工坊</h1>
+          <p class="subtitle">一句话生成、试玩、修改和下载 HTML 小游戏</p>
         </div>
       </div>
+      <div id="providerStatus" class="status-pill">DeepSeek 检测中</div>
+    </header>
+
+    <section class="workspace">
+      <section class="surface" aria-label="生成游戏">
+        <div class="surface-head">
+          <h2>生成新游戏</h2>
+          <span>DeepSeek</span>
+        </div>
+        <div class="surface-body">
+          <form id="generateForm">
+            <div class="field">
+              <label for="gameName">游戏名称</label>
+              <input id="gameName" name="gameName" autocomplete="off" maxlength="80" placeholder="例如：推箱子游戏" required>
+            </div>
+
+            <div class="example-grid" aria-label="快速示例">
+              <button class="chip" type="button" data-example="推箱子游戏">推箱子</button>
+              <button class="chip" type="button" data-example="太空射击游戏">太空射击</button>
+              <button class="chip" type="button" data-example="贪吃蛇游戏">贪吃蛇</button>
+              <button class="chip" type="button" data-example="打砖块游戏">打砖块</button>
+              <button class="chip" type="button" data-example="迷宫逃脱游戏">迷宫逃脱</button>
+            </div>
+
+            <div class="field">
+              <label for="extraRequirements">补充需求</label>
+              <textarea id="extraRequirements" name="extraRequirements" maxlength="1200" placeholder="例如：像素风、三关、增加计时器、可爱角色"></textarea>
+            </div>
+
+            <div class="action-row">
+              <button id="generateBtn" class="btn-primary" type="submit">生成并试玩</button>
+              <button id="importSampleBtn" class="btn-ghost" type="button">导入炸弹人示例</button>
+            </div>
+          </form>
+          <div id="message" class="message">准备就绪。</div>
+        </div>
+      </section>
+
+      <section class="surface" aria-label="游戏库">
+        <div class="surface-head">
+          <h2>游戏库</h2>
+          <div class="library-tools">
+            <input id="searchInput" type="search" placeholder="搜索游戏">
+          </div>
+        </div>
+        <div class="surface-body">
+          <div id="emptyState" class="empty-state hidden">还没有游戏。</div>
+          <div id="gameList" class="game-list"></div>
+        </div>
+      </section>
     </section>
   </main>
+
+  <div id="previewModal" class="modal hidden" role="dialog" aria-modal="true" aria-label="试玩窗口">
+    <div class="preview-shell">
+      <div class="preview-bar">
+        <div id="previewTitle" class="preview-title">试玩</div>
+        <div class="preview-actions">
+          <button id="reloadPreviewBtn" class="btn-blue" type="button">重新加载</button>
+          <button id="downloadPreviewBtn" class="btn-green" type="button">下载</button>
+          <button id="closePreviewBtn" class="btn-ghost" type="button">关闭</button>
+        </div>
+      </div>
+      <iframe id="gamePreview" title="游戏试玩" sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe>
+    </div>
+  </div>
+
+  <div id="editModal" class="modal hidden" role="dialog" aria-modal="true" aria-label="AI 修改游戏">
+    <form id="editForm" class="dialog">
+      <div id="editTitle" class="dialog-head">AI 修改</div>
+      <div class="dialog-body">
+        <div class="field">
+          <label for="editInstruction">修改要求</label>
+          <textarea id="editInstruction" maxlength="1200" placeholder="例如：增加计时器和下一关，失败后显示最终分数" required></textarea>
+        </div>
+        <div class="dialog-actions">
+          <button id="cancelEditBtn" class="btn-ghost" type="button">取消</button>
+          <button id="submitEditBtn" class="btn-primary" type="submit">提交修改</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div id="busyLayer" class="busy-layer hidden">
+    <div class="busy-box">
+      <div id="busyText" class="busy-title">正在生成</div>
+      <div class="progress-track" aria-hidden="true">
+        <div id="progressFill" class="progress-fill"></div>
+      </div>
+      <div class="progress-meta">
+        <span id="progressPercent">0%</span>
+        <span id="progressEta">预计剩余 --</span>
+      </div>
+    </div>
+  </div>
 
   <script>
     (() => {
       "use strict";
 
-      const COLS = 13;
-      const ROWS = 11;
-      const TILE = 48;
-      const W = COLS * TILE;
-      const H = ROWS * TILE;
-      const Cell = { FLOOR: 0, SOLID: 1, BREAK: 2 };
-      const DIRS = [
-        { x: 0, y: -1, name: "up" },
-        { x: 1, y: 0, name: "right" },
-        { x: 0, y: 1, name: "down" },
-        { x: -1, y: 0, name: "left" }
-      ];
-      const POWERUPS = {
-        speed: { label: "S", color: "#35bfff", text: "速度提升" },
-        bomb: { label: "B", color: "#ffd33d", text: "炸弹+1" },
-        shield: { label: "I", color: "#9d76ff", text: "临时无敌" }
+      const DB_NAME = "ai-mini-game-workshop";
+      const DB_VERSION = 1;
+      const STORE = "games";
+      const SAMPLE_ID = "sample-bomberman";
+
+      const els = {
+        providerStatus: document.getElementById("providerStatus"),
+        generateForm: document.getElementById("generateForm"),
+        gameName: document.getElementById("gameName"),
+        extraRequirements: document.getElementById("extraRequirements"),
+        generateBtn: document.getElementById("generateBtn"),
+        importSampleBtn: document.getElementById("importSampleBtn"),
+        message: document.getElementById("message"),
+        searchInput: document.getElementById("searchInput"),
+        emptyState: document.getElementById("emptyState"),
+        gameList: document.getElementById("gameList"),
+        previewModal: document.getElementById("previewModal"),
+        previewTitle: document.getElementById("previewTitle"),
+        gamePreview: document.getElementById("gamePreview"),
+        reloadPreviewBtn: document.getElementById("reloadPreviewBtn"),
+        downloadPreviewBtn: document.getElementById("downloadPreviewBtn"),
+        closePreviewBtn: document.getElementById("closePreviewBtn"),
+        editModal: document.getElementById("editModal"),
+        editForm: document.getElementById("editForm"),
+        editTitle: document.getElementById("editTitle"),
+        editInstruction: document.getElementById("editInstruction"),
+        cancelEditBtn: document.getElementById("cancelEditBtn"),
+        submitEditBtn: document.getElementById("submitEditBtn"),
+        busyLayer: document.getElementById("busyLayer"),
+        busyText: document.getElementById("busyText"),
+        progressFill: document.getElementById("progressFill"),
+        progressPercent: document.getElementById("progressPercent"),
+        progressEta: document.getElementById("progressEta")
       };
 
-      const canvas = document.getElementById("game");
-      const ctx = canvas.getContext("2d");
-      const scoreEl = document.getElementById("score");
-      const levelEl = document.getElementById("level");
-      const bombsEl = document.getElementById("bombs");
-      const shieldEl = document.getElementById("shield");
-      const overlay = document.getElementById("overlay");
-      const overlayTitle = document.getElementById("overlayTitle");
-      const overlayText = document.getElementById("overlayText");
-      const restartBtn = document.getElementById("restartBtn");
+      let dbPromise = null;
+      let games = [];
+      let currentPreview = null;
+      let currentEdit = null;
+      let progressTimer = null;
+      let progressStartedAt = 0;
+      let progressEstimateMs = 180000;
 
-      canvas.width = W;
-      canvas.height = H;
-      ctx.imageSmoothingEnabled = false;
+      init();
 
-      let map = [];
-      let bombs = [];
-      let explosions = [];
-      let powerups = [];
-      let enemies = [];
-      let keys = new Set();
-      let nextId = 1;
-      let lastAxis = "x";
-      let lastFrame = 0;
-      let player;
-
-      const game = {
-        state: "playing",
-        level: 1,
-        score: 0,
-        time: 0,
-        levelTimer: 0,
-        banner: "",
-        bannerTimer: 0
-      };
-
-      function id(prefix) {
-        nextId += 1;
-        return prefix + nextId;
+      function init() {
+        wireEvents();
+        loadHealth();
+        refreshGames();
       }
 
-      function clamp(v, min, max) {
-        return Math.max(min, Math.min(max, v));
-      }
+      function wireEvents() {
+        els.generateForm.addEventListener("submit", onGenerate);
+        els.importSampleBtn.addEventListener("click", importSample);
+        els.searchInput.addEventListener("input", renderGames);
+        els.reloadPreviewBtn.addEventListener("click", reloadPreview);
+        els.downloadPreviewBtn.addEventListener("click", () => currentPreview && downloadGame(currentPreview));
+        els.closePreviewBtn.addEventListener("click", closePreview);
+        els.cancelEditBtn.addEventListener("click", closeEdit);
+        els.editForm.addEventListener("submit", submitEdit);
 
-      function approach(value, target, amount) {
-        if (Math.abs(target - value) <= amount) return target;
-        return value + Math.sign(target - value) * amount;
-      }
-
-      function cellCenter(v) {
-        return Math.floor(v) + 0.5;
-      }
-
-      function distance(a, b) {
-        return Math.hypot(a.x - b.x, a.y - b.y);
-      }
-
-      function shuffle(list) {
-        for (let i = list.length - 1; i > 0; i -= 1) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [list[i], list[j]] = [list[j], list[i]];
-        }
-        return list;
-      }
-
-      function resetGame() {
-        game.state = "playing";
-        game.level = 1;
-        game.score = 0;
-        game.time = 0;
-        game.levelTimer = 0;
-        nextId = 1;
-        player = {
-          id: "player",
-          x: 1.5,
-          y: 1.5,
-          r: 0.31,
-          speed: 3.2,
-          maxBombs: 1,
-          bombPower: 2,
-          invuln: 1.4,
-          alive: true,
-          facingX: 1,
-          facingY: 0,
-          step: 0
-        };
-        keys = new Set();
-        startLevel();
-        overlay.classList.add("hidden");
-      }
-
-      function startLevel() {
-        map = makeMap();
-        bombs = [];
-        explosions = [];
-        powerups = [];
-        enemies = [];
-        player.x = 1.5;
-        player.y = 1.5;
-        player.alive = true;
-        player.invuln = Math.max(player.invuln, 1.4);
-        spawnEnemies();
-        game.state = "playing";
-        setBanner("第 " + game.level + " 关", 1.15);
-        updateHud();
-      }
-
-      function makeMap() {
-        const safe = new Set(["1,1", "1,2", "2,1", "2,2", "3,1", "1,3"]);
-        const grid = [];
-        const chance = clamp(0.36 + game.level * 0.018, 0.36, 0.48);
-
-        for (let y = 0; y < ROWS; y += 1) {
-          const row = [];
-          for (let x = 0; x < COLS; x += 1) {
-            const fixed = x === 0 || y === 0 || x === COLS - 1 || y === ROWS - 1 || (x % 2 === 0 && y % 2 === 0);
-            if (fixed) {
-              row.push(Cell.SOLID);
-            } else if (!safe.has(x + "," + y) && Math.random() < chance) {
-              row.push(Cell.BREAK);
-            } else {
-              row.push(Cell.FLOOR);
-            }
-          }
-          grid.push(row);
-        }
-
-        return grid;
-      }
-
-      function spawnEnemies() {
-        const cells = [];
-        for (let y = 1; y < ROWS - 1; y += 1) {
-          for (let x = 1; x < COLS - 1; x += 1) {
-            if (map[y][x] === Cell.FLOOR && Math.abs(x - 1) + Math.abs(y - 1) > 5) {
-              cells.push({ x, y });
-            }
-          }
-        }
-
-        shuffle(cells);
-        const count = Math.min(2 + game.level, 10);
-        for (let i = 0; i < count && i < cells.length; i += 1) {
-          const cell = cells[i];
-          const type = i % 3 === 0 ? "chaser" : "wanderer";
-          enemies.push({
-            id: id("enemy"),
-            type,
-            x: cell.x + 0.5,
-            y: cell.y + 0.5,
-            r: 0.31,
-            dirX: 0,
-            dirY: 0,
-            speed: (type === "chaser" ? 1.45 : 1.35) + game.level * 0.09,
-            think: 0.05 + Math.random() * 0.5,
-            anim: Math.random() * 10,
-            dead: false
+        document.querySelectorAll("[data-example]").forEach((button) => {
+          button.addEventListener("click", () => {
+            els.gameName.value = button.dataset.example;
+            els.gameName.focus();
           });
-        }
-      }
-
-      function setBanner(text, seconds) {
-        game.banner = text;
-        game.bannerTimer = seconds;
-      }
-
-      function updateHud() {
-        scoreEl.textContent = String(game.score);
-        levelEl.textContent = String(game.level);
-        bombsEl.textContent = String(Math.max(0, player.maxBombs - activePlayerBombs()));
-        shieldEl.textContent = player.invuln > 0 ? player.invuln.toFixed(1) + "s" : "0.0s";
-      }
-
-      function activePlayerBombs() {
-        return bombs.filter((bomb) => bomb.owner === "player").length;
-      }
-
-      function onKeyDown(event) {
-        const code = event.code;
-        if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(code)) {
-          event.preventDefault();
-        }
-        if (["ArrowLeft", "ArrowRight", "KeyA", "KeyD"].includes(code)) lastAxis = "x";
-        if (["ArrowUp", "ArrowDown", "KeyW", "KeyS"].includes(code)) lastAxis = "y";
-        keys.add(code);
-
-        if (code === "Space" && !event.repeat) {
-          placeBomb();
-        }
-        if (code === "Enter" && game.state === "gameover") {
-          resetGame();
-        }
-      }
-
-      function onKeyUp(event) {
-        keys.delete(event.code);
-      }
-
-      function inputDirection() {
-        const left = keys.has("ArrowLeft") || keys.has("KeyA");
-        const right = keys.has("ArrowRight") || keys.has("KeyD");
-        const up = keys.has("ArrowUp") || keys.has("KeyW");
-        const down = keys.has("ArrowDown") || keys.has("KeyS");
-        let x = (right ? 1 : 0) - (left ? 1 : 0);
-        let y = (down ? 1 : 0) - (up ? 1 : 0);
-        if (x && y) {
-          if (lastAxis === "x") y = 0;
-          else x = 0;
-        }
-        return { x, y };
-      }
-
-      function placeBomb() {
-        if (game.state !== "playing" || !player.alive) return;
-        if (activePlayerBombs() >= player.maxBombs) return;
-
-        const x = Math.floor(player.x);
-        const y = Math.floor(player.y);
-        if (map[y][x] !== Cell.FLOOR) return;
-        if (bombs.some((bomb) => bomb.x === x && bomb.y === y)) return;
-
-        bombs.push({
-          id: id("bomb"),
-          owner: "player",
-          x,
-          y,
-          timer: 2.15,
-          duration: 2.15,
-          power: player.bombPower,
-          passers: new Set([player.id]),
-          exploding: false
-        });
-        updateHud();
-      }
-
-      function update(dt) {
-        game.time += dt;
-        if (game.bannerTimer > 0) game.bannerTimer = Math.max(0, game.bannerTimer - dt);
-
-        if (game.state === "playing") {
-          updatePlayer(dt);
-          updateEnemies(dt);
-          updateBombs(dt);
-          updateExplosions(dt);
-          updatePowerups(dt);
-          updateBombPassers();
-          checkDamage();
-          checkLevelClear();
-        } else if (game.state === "leveling") {
-          updateBombs(dt);
-          updateExplosions(dt);
-          updatePowerups(dt);
-          game.levelTimer -= dt;
-          if (game.levelTimer <= 0) {
-            game.level += 1;
-            startLevel();
-          }
-        }
-
-        updateHud();
-      }
-
-      function updatePlayer(dt) {
-        if (player.invuln > 0) player.invuln = Math.max(0, player.invuln - dt);
-
-        const dir = inputDirection();
-        if (dir.x || dir.y) {
-          player.facingX = dir.x;
-          player.facingY = dir.y;
-          player.step += dt * player.speed;
-          moveEntity(player, dir.x, dir.y, player.speed * dt);
-        }
-
-        collectPowerups();
-      }
-
-      function updateEnemies(dt) {
-        for (const enemy of enemies) {
-          enemy.anim += dt;
-          enemy.think -= dt;
-
-          const centered = nearCenter(enemy);
-          if (enemy.think <= 0 || (centered && Math.random() < 0.018)) {
-            chooseEnemyDirection(enemy);
-          }
-
-          const moved = moveEntity(enemy, enemy.dirX, enemy.dirY, enemy.speed * dt);
-          if (!moved) {
-            enemy.think = 0;
-            chooseEnemyDirection(enemy);
-          }
-        }
-      }
-
-      function updateBombs(dt) {
-        for (const bomb of [...bombs]) {
-          bomb.timer -= dt;
-          if (bomb.timer <= 0) explodeBomb(bomb);
-        }
-      }
-
-      function updateExplosions(dt) {
-        for (const explosion of explosions) {
-          explosion.age += dt;
-        }
-        explosions = explosions.filter((explosion) => explosion.age < explosion.ttl);
-      }
-
-      function updatePowerups(dt) {
-        for (const item of powerups) {
-          item.age += dt;
-        }
-      }
-
-      function updateBombPassers() {
-        const entities = new Map([[player.id, player]]);
-        for (const enemy of enemies) entities.set(enemy.id, enemy);
-
-        for (const bomb of bombs) {
-          for (const entityId of [...bomb.passers]) {
-            const entity = entities.get(entityId);
-            if (!entity || !circleRect(entity.x, entity.y, entity.r, bomb.x, bomb.y, 1, 1)) {
-              bomb.passers.delete(entityId);
-            }
-          }
-        }
-      }
-
-      function moveEntity(entity, dx, dy, amount) {
-        if (!dx && !dy) return false;
-        let moved = false;
-
-        if (dx !== 0 && dy === 0) {
-          entity.y = approach(entity.y, cellCenter(entity.y), Math.min(amount * 1.6, 0.12));
-        }
-        if (dy !== 0 && dx === 0) {
-          entity.x = approach(entity.x, cellCenter(entity.x), Math.min(amount * 1.6, 0.12));
-        }
-
-        if (dx !== 0) {
-          const nextX = entity.x + dx * amount;
-          if (!blockedAt(entity, nextX, entity.y)) {
-            entity.x = nextX;
-            moved = true;
-          }
-        }
-
-        if (dy !== 0) {
-          const nextY = entity.y + dy * amount;
-          if (!blockedAt(entity, entity.x, nextY)) {
-            entity.y = nextY;
-            moved = true;
-          }
-        }
-
-        return moved;
-      }
-
-      function nearCenter(entity) {
-        return Math.abs(entity.x - cellCenter(entity.x)) < 0.08 && Math.abs(entity.y - cellCenter(entity.y)) < 0.08;
-      }
-
-      function blockedAt(entity, x, y) {
-        const r = entity.r;
-        const minX = Math.floor(x - r);
-        const maxX = Math.floor(x + r);
-        const minY = Math.floor(y - r);
-        const maxY = Math.floor(y + r);
-
-        for (let ty = minY; ty <= maxY; ty += 1) {
-          for (let tx = minX; tx <= maxX; tx += 1) {
-            if (isWall(tx, ty) && circleRect(x, y, r, tx, ty, 1, 1)) return true;
-          }
-        }
-
-        for (const bomb of bombs) {
-          if (bomb.exploding || bomb.passers.has(entity.id)) continue;
-          if (circleRect(x, y, r, bomb.x, bomb.y, 1, 1)) return true;
-        }
-
-        return false;
-      }
-
-      function isWall(x, y) {
-        if (x < 0 || y < 0 || x >= COLS || y >= ROWS) return true;
-        return map[y][x] === Cell.SOLID || map[y][x] === Cell.BREAK;
-      }
-
-      function circleRect(cx, cy, radius, rx, ry, rw, rh) {
-        const closestX = clamp(cx, rx, rx + rw);
-        const closestY = clamp(cy, ry, ry + rh);
-        const dx = cx - closestX;
-        const dy = cy - closestY;
-        return dx * dx + dy * dy < radius * radius;
-      }
-
-      function chooseEnemyDirection(enemy) {
-        const available = DIRS.filter((dir) => canMove(enemy, dir));
-        if (!available.length) {
-          enemy.dirX = 0;
-          enemy.dirY = 0;
-          enemy.think = 0.25;
-          return;
-        }
-
-        let chosen = null;
-        const dx = player.x - enemy.x;
-        const dy = player.y - enemy.y;
-        const closeToPlayer = Math.abs(dx) + Math.abs(dy) < 6.2;
-
-        if (enemy.type === "chaser" && closeToPlayer) {
-          const horizontal = { x: Math.sign(dx), y: 0 };
-          const vertical = { x: 0, y: Math.sign(dy) };
-          const preferences = Math.abs(dx) > Math.abs(dy)
-            ? [horizontal, vertical, { x: -horizontal.x, y: 0 }, { x: 0, y: -vertical.y }]
-            : [vertical, horizontal, { x: 0, y: -vertical.y }, { x: -horizontal.x, y: 0 }];
-          chosen = preferences.find((dir) => (dir.x || dir.y) && canMove(enemy, dir));
-        }
-
-        if (!chosen) {
-          const current = available.find((dir) => dir.x === enemy.dirX && dir.y === enemy.dirY);
-          chosen = current && Math.random() < 0.52 ? current : available[Math.floor(Math.random() * available.length)];
-        }
-
-        enemy.dirX = chosen.x;
-        enemy.dirY = chosen.y;
-        enemy.think = enemy.type === "chaser" ? 0.22 + Math.random() * 0.24 : 0.45 + Math.random() * 0.7;
-      }
-
-      function canMove(entity, dir) {
-        const testX = entity.x + dir.x * 0.48;
-        const testY = entity.y + dir.y * 0.48;
-        return !blockedAt(entity, testX, testY);
-      }
-
-      function explodeBomb(bomb) {
-        const index = bombs.indexOf(bomb);
-        if (index === -1 || bomb.exploding) return;
-
-        bomb.exploding = true;
-        bombs.splice(index, 1);
-
-        const cells = [{ x: bomb.x, y: bomb.y, kind: "center" }];
-        const broken = [];
-
-        for (const dir of DIRS) {
-          for (let step = 1; step <= bomb.power; step += 1) {
-            const x = bomb.x + dir.x * step;
-            const y = bomb.y + dir.y * step;
-            if (x < 0 || y < 0 || x >= COLS || y >= ROWS) break;
-            if (map[y][x] === Cell.SOLID) break;
-
-            cells.push({
-              x,
-              y,
-              kind: dir.x ? "horizontal" : "vertical",
-              end: step === bomb.power
-            });
-
-            if (map[y][x] === Cell.BREAK) {
-              broken.push({ x, y });
-              break;
-            }
-          }
-        }
-
-        powerups = powerups.filter((item) => !cells.some((cell) => cell.x === item.x && cell.y === item.y));
-
-        for (const block of broken) {
-          if (map[block.y][block.x] === Cell.BREAK) {
-            map[block.y][block.x] = Cell.FLOOR;
-            game.score += 20;
-            maybeDropPowerup(block.x, block.y);
-          }
-        }
-
-        explosions.push({
-          cells,
-          age: 0,
-          ttl: 0.55
         });
 
-        for (const other of [...bombs]) {
-          if (cells.some((cell) => cell.x === other.x && cell.y === other.y)) {
-            explodeBomb(other);
+        window.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") {
+            if (!els.editModal.classList.contains("hidden")) closeEdit();
+            else if (!els.previewModal.classList.contains("hidden")) closePreview();
           }
-        }
-
-        checkDamage();
-      }
-
-      function maybeDropPowerup(x, y) {
-        if (Math.random() > 0.34) return;
-        const roll = Math.random();
-        const type = roll < 0.42 ? "speed" : roll < 0.74 ? "bomb" : "shield";
-        powerups.push({
-          id: id("power"),
-          type,
-          x,
-          y,
-          age: 0
         });
       }
 
-      function collectPowerups() {
-        for (let i = powerups.length - 1; i >= 0; i -= 1) {
-          const item = powerups[i];
-          if (circleRect(player.x, player.y, player.r, item.x + 0.08, item.y + 0.08, 0.84, 0.84)) {
-            applyPowerup(item);
-            powerups.splice(i, 1);
+      async function loadHealth() {
+        try {
+          const health = await requestJson("/api/health");
+          els.providerStatus.textContent = health.hasKey
+            ? `DeepSeek ${health.model} 已连接`
+            : `DeepSeek ${health.model} 未配置 Key`;
+          els.providerStatus.classList.toggle("ready", Boolean(health.hasKey));
+          els.providerStatus.classList.toggle("warn", !health.hasKey);
+          if (!health.hasKey) {
+            showMessage("请先在终端设置 DeepSeek API Key，再生成新游戏。", "error");
           }
+        } catch (error) {
+          els.providerStatus.textContent = "后端未连接";
+          els.providerStatus.classList.add("warn");
+          showMessage(error.message, "error");
         }
       }
 
-      function applyPowerup(item) {
-        if (item.type === "speed") {
-          player.speed = Math.min(5.35, player.speed + 0.42);
-        } else if (item.type === "bomb") {
-          player.maxBombs = Math.min(6, player.maxBombs + 1);
-        } else if (item.type === "shield") {
-          player.invuln = Math.max(player.invuln, 7);
+      async function onGenerate(event) {
+        event.preventDefault();
+        const gameName = els.gameName.value.trim();
+        const extraRequirements = els.extraRequirements.value.trim();
+        if (!gameName) return;
+
+        setBusy(true, "DeepSeek 正在生成游戏", 240000);
+        showMessage("生成中，请稍等。", "");
+        try {
+          const data = await requestJson("/api/generate", {
+            method: "POST",
+            body: { gameName, extraRequirements }
+          });
+
+          const now = new Date().toISOString();
+          const game = {
+            id: createId(),
+            title: gameName,
+            gameName,
+            html: data.html,
+            createdAt: now,
+            updatedAt: now,
+            version: 1
+          };
+          await putGame(game);
+          await refreshGames();
+          openPreview(game);
+          showMessage(`已生成：${game.title}`, "ok");
+        } catch (error) {
+          showMessage(error.message, "error");
+        } finally {
+          setBusy(false);
         }
-        game.score += 50;
-        setBanner(POWERUPS[item.type].text, 0.95);
       }
 
-      function checkDamage() {
-        if (game.state !== "playing") return;
+      async function submitEdit(event) {
+        event.preventDefault();
+        if (!currentEdit) return;
+        const instruction = els.editInstruction.value.trim();
+        if (!instruction) return;
 
-        for (const enemy of enemies) {
-          if (entityInExplosions(enemy)) killEnemy(enemy);
-        }
-        enemies = enemies.filter((enemy) => !enemy.dead);
-
-        if (player.invuln <= 0 && entityInExplosions(player)) {
-          endGame();
-          return;
-        }
-
-        if (player.invuln <= 0) {
-          for (const enemy of enemies) {
-            if (distance(player, enemy) < player.r + enemy.r + 0.04) {
-              endGame();
-              return;
+        setBusy(true, "DeepSeek 正在修改游戏", 210000);
+        try {
+          const data = await requestJson("/api/modify", {
+            method: "POST",
+            body: {
+              title: currentEdit.title,
+              html: currentEdit.html,
+              instruction
             }
-          }
+          });
+
+          const updated = {
+            ...currentEdit,
+            html: data.html,
+            version: Number(currentEdit.version || 1) + 1,
+            updatedAt: new Date().toISOString()
+          };
+          await putGame(updated);
+          closeEdit();
+          await refreshGames();
+          openPreview(updated);
+          showMessage(`已修改：${updated.title}`, "ok");
+        } catch (error) {
+          showMessage(error.message, "error");
+        } finally {
+          setBusy(false);
         }
       }
 
-      function entityInExplosions(entity) {
-        return explosions.some((explosion) => entityInCells(entity, explosion.cells));
-      }
-
-      function entityInCells(entity, cells) {
-        return cells.some((cell) => circleRect(entity.x, entity.y, entity.r * 0.9, cell.x, cell.y, 1, 1));
-      }
-
-      function killEnemy(enemy) {
-        if (enemy.dead) return;
-        enemy.dead = true;
-        game.score += enemy.type === "chaser" ? 150 : 100;
-      }
-
-      function checkLevelClear() {
-        if (game.state === "playing" && enemies.length === 0) {
-          game.state = "leveling";
-          game.levelTimer = 1.55;
-          game.score += 300 + game.level * 100;
-          setBanner("第 " + game.level + " 关完成", 1.45);
+      async function importSample() {
+        setBusy(true, "正在导入示例", 3500);
+        try {
+          const response = await fetch("/samples/bomberman.html", { cache: "no-store" });
+          if (!response.ok) throw new Error("无法读取炸弹人示例。");
+          const html = await response.text();
+          const existing = games.find((game) => game.id === SAMPLE_ID);
+          const now = new Date().toISOString();
+          const sample = {
+            id: SAMPLE_ID,
+            title: "炸弹人示例",
+            gameName: "Bomberman / 炸弹人",
+            html,
+            createdAt: existing?.createdAt || now,
+            updatedAt: now,
+            version: existing ? Number(existing.version || 1) + 1 : 1
+          };
+          await putGame(sample);
+          await refreshGames();
+          openPreview(sample);
+          showMessage("炸弹人示例已导入。", "ok");
+        } catch (error) {
+          showMessage(error.message, "error");
+        } finally {
+          setBusy(false);
         }
       }
 
-      function endGame() {
-        if (game.state === "gameover") return;
-        game.state = "gameover";
-        player.alive = false;
-        overlayTitle.textContent = "游戏结束";
-        overlayText.textContent = "得分 " + game.score + " | 到达第 " + game.level + " 关";
-        overlay.classList.remove("hidden");
+      async function refreshGames() {
+        games = await getAllGames();
+        games.sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)));
+        renderGames();
       }
 
-      function render() {
-        ctx.clearRect(0, 0, W, H);
-        drawFloor();
-        drawMap();
-        drawPowerups();
-        drawBombs();
-        drawEnemies();
-        drawPlayer();
-        drawExplosions();
-        drawBanner();
-      }
+      function renderGames() {
+        const query = els.searchInput.value.trim().toLowerCase();
+        const filtered = games.filter((game) => {
+          const haystack = `${game.title} ${game.gameName}`.toLowerCase();
+          return !query || haystack.includes(query);
+        });
 
-      function drawFloor() {
-        for (let y = 0; y < ROWS; y += 1) {
-          for (let x = 0; x < COLS; x += 1) {
-            const px = x * TILE;
-            const py = y * TILE;
-            ctx.fillStyle = (x + y) % 2 === 0 ? "#94df6e" : "#8bd768";
-            ctx.fillRect(px, py, TILE, TILE);
-            ctx.fillStyle = "rgba(255,255,255,0.16)";
-            ctx.fillRect(px + 9, py + 10, 6, 6);
-            ctx.fillRect(px + 32, py + 30, 5, 5);
-          }
+        els.gameList.textContent = "";
+        els.emptyState.classList.toggle("hidden", filtered.length > 0);
+
+        for (const game of filtered) {
+          els.gameList.appendChild(createGameRow(game));
         }
       }
 
-      function drawMap() {
-        for (let y = 0; y < ROWS; y += 1) {
-          for (let x = 0; x < COLS; x += 1) {
-            if (map[y][x] === Cell.SOLID) drawSolidWall(x, y);
-            if (map[y][x] === Cell.BREAK) drawBreakWall(x, y);
-          }
+      function createGameRow(game) {
+        const row = document.createElement("article");
+        row.className = "game-row";
+
+        const info = document.createElement("div");
+        const title = document.createElement("h3");
+        title.textContent = game.title;
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        [
+          `v${game.version || 1}`,
+          formatDate(game.updatedAt),
+          formatBytes(game.html.length),
+          game.gameName || "小游戏"
+        ].forEach((text) => {
+          const tag = document.createElement("span");
+          tag.className = "tag";
+          tag.textContent = text;
+          meta.appendChild(tag);
+        });
+
+        info.append(title, meta);
+
+        const actions = document.createElement("div");
+        actions.className = "row-actions";
+        actions.append(
+          makeButton("试玩", "btn-blue", () => openPreview(game)),
+          makeButton("AI 修改", "btn-primary", () => openEdit(game)),
+          makeButton("下载", "btn-green", () => downloadGame(game)),
+          makeButton("重命名", "btn-ghost", () => renameGame(game)),
+          makeButton("删除", "btn-danger", () => deleteGame(game))
+        );
+
+        row.append(info, actions);
+        return row;
+      }
+
+      function makeButton(text, className, onClick) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = className;
+        button.textContent = text;
+        button.addEventListener("click", onClick);
+        return button;
+      }
+
+      function openPreview(game) {
+        currentPreview = game;
+        els.previewTitle.textContent = `${game.title} · v${game.version || 1}`;
+        els.gamePreview.srcdoc = "";
+        els.previewModal.classList.remove("hidden");
+        setTimeout(() => {
+          els.gamePreview.srcdoc = game.html;
+          els.gamePreview.focus();
+        }, 0);
+      }
+
+      function reloadPreview() {
+        if (!currentPreview) return;
+        els.gamePreview.srcdoc = "";
+        setTimeout(() => {
+          els.gamePreview.srcdoc = currentPreview.html;
+        }, 0);
+      }
+
+      function closePreview() {
+        els.previewModal.classList.add("hidden");
+        els.gamePreview.srcdoc = "";
+        currentPreview = null;
+      }
+
+      function openEdit(game) {
+        currentEdit = game;
+        els.editTitle.textContent = `AI 修改：${game.title}`;
+        els.editInstruction.value = "";
+        els.editModal.classList.remove("hidden");
+        setTimeout(() => els.editInstruction.focus(), 0);
+      }
+
+      function closeEdit() {
+        els.editModal.classList.add("hidden");
+        els.editInstruction.value = "";
+        currentEdit = null;
+      }
+
+      async function renameGame(game) {
+        const title = prompt("新的游戏名称", game.title);
+        if (title == null) return;
+        const nextTitle = title.trim();
+        if (!nextTitle) return;
+        const updated = { ...game, title: nextTitle.slice(0, 120), updatedAt: new Date().toISOString() };
+        await putGame(updated);
+        await refreshGames();
+        showMessage("已重命名。", "ok");
+      }
+
+      async function deleteGame(game) {
+        if (!confirm(`删除“${game.title}”？`)) return;
+        await removeGame(game.id);
+        if (currentPreview?.id === game.id) closePreview();
+        await refreshGames();
+        showMessage("已删除。", "ok");
+      }
+
+      function downloadGame(game) {
+        const blob = new Blob([game.html], { type: "text/html;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "index.html";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 0);
+      }
+
+      async function requestJson(url, options = {}) {
+        const response = await fetch(url, {
+          method: options.method || "GET",
+          headers: options.body ? { "Content-Type": "application/json" } : undefined,
+          body: options.body ? JSON.stringify(options.body) : undefined
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          const detail = data.detail ? `：${data.detail}` : "";
+          throw new Error((data.error || "请求失败") + detail);
         }
+        return data;
       }
 
-      function drawSolidWall(x, y) {
-        const px = x * TILE;
-        const py = y * TILE;
-        ctx.fillStyle = "#365a9f";
-        ctx.fillRect(px + 3, py + 3, TILE - 6, TILE - 6);
-        ctx.fillStyle = "#5ea0de";
-        ctx.fillRect(px + 8, py + 8, TILE - 16, 12);
-        ctx.fillStyle = "#29477e";
-        ctx.fillRect(px + 8, py + 28, TILE - 16, 10);
-        ctx.fillStyle = "rgba(255,255,255,0.32)";
-        ctx.fillRect(px + 12, py + 11, 11, 5);
-      }
-
-      function drawBreakWall(x, y) {
-        const px = x * TILE;
-        const py = y * TILE;
-        ctx.fillStyle = "#9b573b";
-        ctx.fillRect(px + 4, py + 4, TILE - 8, TILE - 8);
-        ctx.fillStyle = "#f0a652";
-        ctx.fillRect(px + 7, py + 7, TILE - 14, TILE - 14);
-        ctx.fillStyle = "#c86b43";
-        ctx.fillRect(px + 10, py + 21, TILE - 20, 6);
-        ctx.fillRect(px + 20, py + 10, 6, TILE - 20);
-        ctx.fillStyle = "rgba(255,255,255,0.35)";
-        ctx.fillRect(px + 12, py + 11, 10, 5);
-      }
-
-      function drawPowerups() {
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        for (const item of powerups) {
-          const info = POWERUPS[item.type];
-          const grow = easeOutBack(clamp(item.age / 0.42, 0, 1));
-          const bob = Math.sin(game.time * 5 + item.x * 1.3) * 3;
-          const cx = (item.x + 0.5) * TILE;
-          const cy = (item.y + 0.5) * TILE + bob;
-          const size = 27 * grow;
-
-          ctx.save();
-          ctx.translate(cx, cy);
-          ctx.rotate(Math.sin(game.time * 2 + item.y) * 0.08);
-          ctx.fillStyle = "rgba(255,255,255,0.45)";
-          ctx.fillRect(-size / 2 - 4, -size / 2 - 4, size + 8, size + 8);
-          ctx.fillStyle = info.color;
-          ctx.fillRect(-size / 2, -size / 2, size, size);
-          ctx.fillStyle = "#25304a";
-          ctx.font = "900 " + Math.max(12, size * 0.62) + "px Trebuchet MS, sans-serif";
-          ctx.fillText(info.label, 0, 1);
-          ctx.restore();
-        }
-      }
-
-      function easeOutBack(t) {
-        const c1 = 1.70158;
-        const c3 = c1 + 1;
-        return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
-      }
-
-      function drawBombs() {
-        for (const bomb of bombs) {
-          const cx = (bomb.x + 0.5) * TILE;
-          const cy = (bomb.y + 0.5) * TILE;
-          const urgency = 1 - bomb.timer / bomb.duration;
-          const pulse = 1 + Math.sin(game.time * (7 + urgency * 10)) * (0.035 + urgency * 0.055);
-
-          ctx.save();
-          ctx.translate(cx, cy);
-          ctx.scale(pulse, pulse);
-          ctx.fillStyle = "rgba(37,48,74,0.22)";
-          ctx.fillRect(-16, 16, 32, 7);
-          ctx.fillStyle = "#22283f";
-          ctx.beginPath();
-          ctx.arc(0, 2, 17, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillStyle = "#3c4b78";
-          ctx.beginPath();
-          ctx.arc(-6, -5, 7, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillStyle = "#f45b69";
-          ctx.fillRect(5, -19, 11, 7);
-          ctx.strokeStyle = "#25304a";
-          ctx.lineWidth = 4;
-          ctx.beginPath();
-          ctx.moveTo(12, -19);
-          ctx.quadraticCurveTo(22, -28, 28, -18);
-          ctx.stroke();
-          ctx.fillStyle = urgency > 0.6 ? "#fff35d" : "#ffd35c";
-          ctx.fillRect(26, -21, 7, 7);
-          ctx.restore();
-        }
-      }
-
-      function drawEnemies() {
-        for (const enemy of enemies) {
-          const cx = enemy.x * TILE;
-          const cy = enemy.y * TILE + Math.sin(enemy.anim * 8) * 2;
-          const chaser = enemy.type === "chaser";
-
-          ctx.save();
-          ctx.translate(cx, cy);
-          ctx.fillStyle = "rgba(37,48,74,0.2)";
-          ctx.fillRect(-15, 16, 30, 6);
-          ctx.fillStyle = chaser ? "#8c5cff" : "#ff5f7e";
-          ctx.fillRect(-16, -15, 32, 30);
-          ctx.fillStyle = chaser ? "#6240bd" : "#d84668";
-          ctx.fillRect(-16, 7, 32, 8);
-          ctx.fillStyle = "#fff7d7";
-          if (chaser) {
-            ctx.fillRect(-7, -7, 14, 12);
-            ctx.fillStyle = "#25304a";
-            ctx.fillRect(-2 + Math.sign(player.x - enemy.x) * 2, -4 + Math.sign(player.y - enemy.y) * 1, 5, 5);
-          } else {
-            ctx.fillRect(-10, -6, 7, 7);
-            ctx.fillRect(3, -6, 7, 7);
-            ctx.fillStyle = "#25304a";
-            ctx.fillRect(-8, -4, 3, 3);
-            ctx.fillRect(5, -4, 3, 3);
-          }
-          ctx.restore();
-        }
-      }
-
-      function drawPlayer() {
-        const cx = player.x * TILE;
-        const cy = player.y * TILE + Math.sin(player.step * 7) * 1.5;
-        const blink = player.invuln > 0 && Math.floor(game.time * 12) % 2 === 0;
-
-        ctx.save();
-        if (blink) ctx.globalAlpha = 0.62;
-        ctx.translate(cx, cy);
-        ctx.fillStyle = "rgba(37,48,74,0.22)";
-        ctx.fillRect(-15, 17, 30, 6);
-        ctx.fillStyle = player.alive ? "#2fb8ff" : "#7c849e";
-        ctx.fillRect(-14, -14, 28, 30);
-        ctx.fillStyle = "#fff7d7";
-        ctx.fillRect(-11, -22, 22, 15);
-        ctx.fillStyle = "#25304a";
-        const eyeX = clamp(player.facingX * 2, -2, 2);
-        const eyeY = clamp(player.facingY * 2, -1, 2);
-        ctx.fillRect(-7 + eyeX, -17 + eyeY, 4, 5);
-        ctx.fillRect(3 + eyeX, -17 + eyeY, 4, 5);
-        ctx.fillStyle = "#1e83c7";
-        ctx.fillRect(-14, 4, 28, 8);
-        ctx.fillStyle = "#ffd35c";
-        ctx.fillRect(-5, 7, 10, 6);
-
-        if (player.invuln > 0) {
-          ctx.globalAlpha = 0.28 + Math.sin(game.time * 8) * 0.08;
-          ctx.strokeStyle = "#fff35d";
-          ctx.lineWidth = 5;
-          ctx.strokeRect(-20, -26, 40, 48);
-        }
-
-        ctx.restore();
-      }
-
-      function drawExplosions() {
-        for (const explosion of explosions) {
-          const t = explosion.age / explosion.ttl;
-          const alpha = clamp(1 - t, 0, 1);
-          const core = 0.72 + Math.sin(t * Math.PI) * 0.28;
-
-          ctx.save();
-          ctx.globalAlpha = alpha;
-          for (const cell of explosion.cells) {
-            const px = cell.x * TILE;
-            const py = cell.y * TILE;
-            const pad = 5 - core * 3;
-            ctx.fillStyle = "#ff4f3e";
-            ctx.fillRect(px + pad, py + pad, TILE - pad * 2, TILE - pad * 2);
-            ctx.fillStyle = "#ffac3d";
-            ctx.fillRect(px + 10, py + 8, TILE - 20, TILE - 16);
-            ctx.fillStyle = "#fff35d";
-            if (cell.kind === "horizontal") {
-              ctx.fillRect(px + 2, py + 19, TILE - 4, 10);
-              ctx.fillRect(px + 16, py + 12, TILE - 32, 24);
-            } else if (cell.kind === "vertical") {
-              ctx.fillRect(px + 19, py + 2, 10, TILE - 4);
-              ctx.fillRect(px + 12, py + 16, 24, TILE - 32);
-            } else {
-              ctx.fillRect(px + 11, py + 11, TILE - 22, TILE - 22);
-              ctx.fillRect(px + 19, py + 3, 10, TILE - 6);
-              ctx.fillRect(px + 3, py + 19, TILE - 6, 10);
+      function openDb() {
+        if (dbPromise) return dbPromise;
+        dbPromise = new Promise((resolve, reject) => {
+          const request = indexedDB.open(DB_NAME, DB_VERSION);
+          request.onupgradeneeded = () => {
+            const db = request.result;
+            if (!db.objectStoreNames.contains(STORE)) {
+              const store = db.createObjectStore(STORE, { keyPath: "id" });
+              store.createIndex("updatedAt", "updatedAt");
             }
-          }
-          ctx.restore();
+          };
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error);
+        });
+        return dbPromise;
+      }
+
+      async function getAllGames() {
+        const db = await openDb();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction(STORE, "readonly");
+          const request = tx.objectStore(STORE).getAll();
+          request.onsuccess = () => resolve(request.result || []);
+          request.onerror = () => reject(request.error);
+        });
+      }
+
+      async function putGame(game) {
+        const db = await openDb();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction(STORE, "readwrite");
+          tx.objectStore(STORE).put(game);
+          tx.oncomplete = resolve;
+          tx.onerror = () => reject(tx.error);
+        });
+      }
+
+      async function removeGame(id) {
+        const db = await openDb();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction(STORE, "readwrite");
+          tx.objectStore(STORE).delete(id);
+          tx.oncomplete = resolve;
+          tx.onerror = () => reject(tx.error);
+        });
+      }
+
+      function setBusy(isBusy, text, estimateMs) {
+        stopProgressTimer();
+        els.busyText.textContent = text || "正在处理";
+        els.busyLayer.classList.toggle("hidden", !isBusy);
+        els.generateBtn.disabled = isBusy;
+        els.submitEditBtn.disabled = isBusy;
+        if (isBusy) {
+          startProgressTimer(estimateMs || 180000);
+        } else {
+          els.progressFill.style.width = "100%";
+          els.progressPercent.textContent = "100%";
+          els.progressEta.textContent = "已完成";
         }
       }
 
-      function drawBanner() {
-        if (game.bannerTimer <= 0) return;
-        const t = clamp(game.bannerTimer, 0, 1);
-        ctx.save();
-        ctx.globalAlpha = Math.min(1, t * 1.4);
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.font = "900 34px Microsoft YaHei, Trebuchet MS, sans-serif";
-        const width = Math.min(W - 70, ctx.measureText(game.banner).width + 70);
-        const x = W / 2 - width / 2;
-        const y = H / 2 - 35;
-        ctx.fillStyle = "rgba(255,247,215,0.92)";
-        ctx.fillRect(x, y, width, 70);
-        ctx.strokeStyle = "#25304a";
-        ctx.lineWidth = 5;
-        ctx.strokeRect(x, y, width, 70);
-        ctx.fillStyle = "#25304a";
-        ctx.fillText(game.banner, W / 2, H / 2 + 1);
-        ctx.restore();
+      function startProgressTimer(estimateMs) {
+        progressStartedAt = Date.now();
+        progressEstimateMs = Math.max(estimateMs, 3000);
+        updateProgress();
+        progressTimer = window.setInterval(updateProgress, 1000);
       }
 
-      function frame(now) {
-        if (!lastFrame) lastFrame = now;
-        const dt = Math.min((now - lastFrame) / 1000, 0.033);
-        lastFrame = now;
-        update(dt);
-        render();
-        requestAnimationFrame(frame);
+      function stopProgressTimer() {
+        if (progressTimer) {
+          window.clearInterval(progressTimer);
+          progressTimer = null;
+        }
       }
 
-      window.addEventListener("keydown", onKeyDown);
-      window.addEventListener("keyup", onKeyUp);
-      restartBtn.addEventListener("click", resetGame);
+      function updateProgress() {
+        const elapsed = Date.now() - progressStartedAt;
+        const ratio = elapsed / progressEstimateMs;
+        const eased = 1 - Math.pow(1 - Math.min(ratio, 1), 2.4);
+        const percent = ratio <= 1 ? Math.min(92, Math.max(3, Math.round(eased * 92))) : 92;
+        const remaining = Math.max(0, progressEstimateMs - elapsed);
 
-      resetGame();
-      requestAnimationFrame(frame);
+        els.progressFill.style.width = `${percent}%`;
+        els.progressPercent.textContent = `${percent}%`;
+        els.progressEta.textContent = remaining > 0
+          ? `预计剩余 ${formatDuration(remaining)}`
+          : `已超出预计 ${formatDuration(elapsed - progressEstimateMs)}，继续等待`;
+      }
+
+      function showMessage(text, type) {
+        els.message.textContent = text;
+        els.message.classList.toggle("error", type === "error");
+        els.message.classList.toggle("ok", type === "ok");
+      }
+
+      function createId() {
+        if (window.crypto && typeof window.crypto.randomUUID === "function") {
+          return window.crypto.randomUUID();
+        }
+        return `game-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      }
+
+      function formatDate(value) {
+        const date = value ? new Date(value) : new Date();
+        if (Number.isNaN(date.getTime())) return "未知时间";
+        return date.toLocaleString("zh-CN", {
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+      }
+
+      function formatBytes(chars) {
+        const bytes = new Blob(["x".repeat(chars)]).size;
+        if (bytes < 1024) return `${bytes} B`;
+        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+        return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+      }
+
+      function formatDuration(ms) {
+        const total = Math.max(0, Math.ceil(ms / 1000));
+        const minutes = Math.floor(total / 60);
+        const seconds = total % 60;
+        if (minutes <= 0) return `${seconds}s`;
+        return `${minutes}m ${String(seconds).padStart(2, "0")}s`;
+      }
     })();
   </script>
 </body>

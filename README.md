@@ -28,11 +28,11 @@
 ├── package-lock.json
 ├── samples/
 │   └── bomberman.html      # 已生成的炸弹人示例
-├── prompt.txt              # 原始炸弹人提示词
 ├── .env                    # 本地 DeepSeek 配置，不要提交
-├── quality-events.jsonl    # 内部质量日志，自动生成，不要提交
 └── .gitignore
 ```
+
+运行过程中会自动生成 `server.log` 和 `quality-events.jsonl`，它们只用于本地排错和失败案例沉淀，已被 `.gitignore` 忽略。
 
 ## 环境要求
 
@@ -137,7 +137,7 @@ http://localhost:8787
 3. 对 AI 返回的 HTML 做静态检查，拦截外部资源、缺少 `<style>`/`<script>`、脚本语法错误、缺少重开或静音控制等问题。
 4. 使用 Playwright 在后台打开游戏，检查白屏、JS 报错、画面是否可见、键盘输入和基础控件。
 5. 如果问题明显，自动把内部 QA 结果发给 AI 修复。普通游戏最多修复 1 轮，规则类游戏最多修复 2 轮。
-6. 质量事件写入 `quality-events.jsonl`，用于沉淀失败案例；这些信息不会显示在游戏卡片或试玩弹窗里。
+6. 质量事件会在需要时写入 `quality-events.jsonl`，用于沉淀失败案例；这些信息不会显示在游戏卡片或试玩弹窗里。
 
 ## 数据保存
 
@@ -154,6 +154,7 @@ http://localhost:8787
 
 - 不要把真实 API Key 写进前端 HTML
 - `.env` 已加入 `.gitignore`
+- `server.log` 已加入 `.gitignore`
 - `quality-events.jsonl` 已加入 `.gitignore`
 - 前端只通过后端接口调用 DeepSeek
 - 生成的游戏通过 iframe 预览运行；为避开部分浏览器插件对 `about:srcdoc`/`null` origin 的干扰，当前使用 Blob URL 兼容预览

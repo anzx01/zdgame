@@ -1,0 +1,13 @@
+{
+  "name": "ai-html-game-generator",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Local AI HTML game generator with hidden quality-loop playtesting.",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.52.0"
+  }
+}

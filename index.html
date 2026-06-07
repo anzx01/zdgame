@@ -876,7 +876,7 @@
         <span class="brand-mark" aria-hidden="true"></span>
         <div>
           <h1>AI 小游戏工坊</h1>
-          <p class="subtitle">NEO-BRUTAL GAME MACHINE · 一句话生成、试玩、修改和下载 HTML 小游戏</p>
+          <p class="subtitle">NEO-BRUTAL GAME MACHINE · 一句话生成、试玩、修改、下载带音效 HTML 小游戏</p>
         </div>
       </div>
       <div class="top-controls">
@@ -893,17 +893,17 @@
         <span class="stamp">BIG LIBRARY</span>
         <strong>能生成多少？</strong>
         <span class="mega-number">1000+</span>
-        <span>小游戏灵感库级别：推箱子、贪吃蛇、射击、迷宫、打砖块、塔防、平台跳跃，以及更多变体。</span>
+        <span>小游戏灵感库级别：推箱子、贪吃蛇、射击、迷宫、象棋、五子棋、塔防，以及更多带音效变体。</span>
       </div>
       <div class="intro-card">
         <span class="stamp">1 LINE</span>
         <strong>有多方便？</strong>
-        <span>一句话输入，自动扩写提示词，生成后直接试玩；不满意就继续让 AI 改到能玩。</span>
+        <span>一句话输入，自动扩写提示词；遇到象棋这类规则游戏，会启用 Think 推理、二次校验、人机对战和合法走子。</span>
       </div>
       <div class="intro-card">
         <span class="stamp">SHIP IT</span>
         <strong>怎么保存？</strong>
-        <span>本地游戏库自动保存，随时下载独立 index.html；删除、重命名、继续迭代都在首页完成。</span>
+        <span>本地游戏库自动保存，随时下载独立 index.html；试玩、静音控制、删除、重命名、继续迭代都在首页完成。</span>
       </div>
     </section>
 
@@ -911,7 +911,7 @@
       <section class="surface" aria-label="生成游戏">
         <div class="surface-head">
           <h2>生成新游戏</h2>
-          <span>DeepSeek</span>
+          <span>DeepSeek + Audio</span>
         </div>
         <div class="surface-body">
           <form id="generateForm">
@@ -1153,12 +1153,26 @@
         els.storyThemeBtn.classList.toggle("active", safeTheme === "storybook");
       }
 
+      function isRuleHeavyGame(text) {
+        const value = String(text || "").toLowerCase();
+        return [
+          "象棋", "中国象棋", "xiangqi", "chinese chess",
+          "国际象棋", "chess", "围棋", "go game", "五子棋", "gomoku",
+          "黑白棋", "reversi", "othello", "跳棋", "checkers",
+          "四子棋", "connect four", "数独", "sudoku", "麻将", "mahjong",
+          "军棋", "斗兽棋", "扑克牌", "纸牌", "poker", "card game", "solitaire"
+        ].some((keyword) => value.includes(keyword.toLowerCase()));
+      }
+
       async function loadHealth() {
         try {
           const health = await requestJson("/api/health");
           els.providerStatus.textContent = health.hasKey
             ? `DeepSeek ${health.model} 已连接`
             : `DeepSeek ${health.model} 未配置 Key`;
+          els.providerStatus.title = health.ruleModel
+            ? `规则类游戏模型：${health.ruleModel}；Thinking：${health.thinking || "enabled"}；Reasoning：${health.reasoningEffort || "high"}`
+            : "";
           els.providerStatus.classList.toggle("ready", Boolean(health.hasKey));
           els.providerStatus.classList.toggle("warn", !health.hasKey);
           if (!health.hasKey) {
@@ -1177,8 +1191,9 @@
         const extraRequirements = els.extraRequirements.value.trim();
         if (!gameName) return;
 
-        setBusy(true, "DeepSeek 正在生成游戏", 240000);
-        showMessage("生成中，请稍等。", "");
+        const ruleHeavy = isRuleHeavyGame(`${gameName}\n${extraRequirements}`);
+        setBusy(true, ruleHeavy ? "DeepSeek Think 正在生成规则游戏" : "DeepSeek 正在生成游戏", ruleHeavy ? 900000 : 300000);
+        showMessage(ruleHeavy ? "后台正在生成、试玩、检查规则并自动修复。" : "后台正在生成、试玩并自动修复明显问题。", "");
         try {
           const data = await requestJson("/api/generate", {
             method: "POST",
@@ -1198,7 +1213,7 @@
           await putGame(game);
           await refreshGames();
           openPreview(game);
-          showMessage(`已生成：${game.title}`, "ok");
+          showMessage(data.repaired ? `已生成：${game.title}（已后台修复）` : `已生成：${game.title}`, "ok");
         } catch (error) {
           showMessage(error.message, "error");
         } finally {
@@ -1212,7 +1227,8 @@
         const instruction = els.editInstruction.value.trim();
         if (!instruction) return;
 
-        setBusy(true, "DeepSeek 正在修改游戏", 210000);
+        const ruleHeavy = isRuleHeavyGame(`${currentEdit.title}\n${instruction}`);
+        setBusy(true, ruleHeavy ? "DeepSeek Think 正在修改规则游戏" : "DeepSeek 正在修改游戏", ruleHeavy ? 900000 : 300000);
         try {
           const data = await requestJson("/api/modify", {
             method: "POST",
@@ -1233,7 +1249,7 @@
           closeEdit();
           await refreshGames();
           openPreview(updated);
-          showMessage(`已修改：${updated.title}`, "ok");
+          showMessage(data.repaired ? `已修改：${updated.title}（已后台修复）` : `已修改：${updated.title}`, "ok");
         } catch (error) {
           showMessage(error.message, "error");
         } finally {
@@ -1305,9 +1321,7 @@
         meta.className = "meta";
         [
           `v${game.version || 1}`,
-          formatDate(game.updatedAt),
-          formatBytes(game.html.length),
-          game.gameName || "小游戏"
+          formatDate(game.updatedAt)
         ].forEach((text) => {
           const tag = document.createElement("span");
           tag.className = "tag";
@@ -1400,7 +1414,8 @@
         const diagnosticText = currentPreviewDiagnostics.length
           ? currentPreviewDiagnostics.join("\n")
           : "没有收到 iframe 自检数据。";
-        setBusy(true, "DeepSeek 正在修复白屏", 210000);
+        const ruleHeavy = isRuleHeavyGame(`${currentPreview.title}\n${currentPreview.gameName || ""}`);
+        setBusy(true, ruleHeavy ? "DeepSeek Think 正在修复规则游戏" : "DeepSeek 正在修复白屏", ruleHeavy ? 900000 : 300000);
         try {
           const data = await requestJson("/api/modify", {
             method: "POST",

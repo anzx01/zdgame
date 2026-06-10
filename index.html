@@ -237,8 +237,8 @@
 
     h1 {
       margin: 0;
-      font-size: clamp(42px, 8vw, 92px);
-      line-height: 0.82;
+      font-size: clamp(42px, 6.6vw, 78px);
+      line-height: 0.9;
       letter-spacing: 0;
       text-shadow: 5px 5px 0 var(--yellow), 9px 9px 0 var(--pink);
     }
@@ -248,10 +248,12 @@
     }
 
     .subtitle {
-      margin: 5px 0 0;
+      margin: 9px 0 0;
       color: var(--ink);
       font-weight: 900;
-      font-size: 18px;
+      font-size: clamp(14px, 1.45vw, 18px);
+      line-height: 1.2;
+      overflow-wrap: anywhere;
     }
 
     .status-pill {
@@ -285,7 +287,7 @@
 
     .intro-grid {
       display: grid;
-      grid-template-columns: 1.28fr 0.86fr 0.86fr;
+      grid-template-columns: repeat(3, 1fr);
       gap: 14px;
       margin: 0 0 18px;
     }
@@ -341,6 +343,21 @@
       font-size: 15px;
       line-height: 1.45;
       font-weight: 900;
+    }
+
+    .mini-list {
+      display: grid;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .mini-list span {
+      border: 2px solid var(--line);
+      background: rgba(255, 255, 255, 0.64);
+      border-radius: var(--radius);
+      padding: 5px 7px;
+      font-size: 13px;
+      line-height: 1.2;
     }
 
     .mega-number {
@@ -606,6 +623,35 @@
       font-weight: 900;
     }
 
+    .game-hook {
+      margin: 7px 0 0;
+      font-size: 13px;
+      line-height: 1.35;
+      font-weight: 900;
+      color: var(--muted);
+      overflow-wrap: anywhere;
+    }
+
+    .last-result {
+      display: inline-flex;
+      align-items: center;
+      max-width: 100%;
+      margin-top: 7px;
+      border: 2px solid var(--line);
+      background: #dcffe4;
+      color: #155c33;
+      border-radius: var(--radius);
+      padding: 4px 7px;
+      font-size: 12px;
+      font-weight: 900;
+      overflow-wrap: anywhere;
+    }
+
+    .tag.viral {
+      background: #fff;
+      color: var(--ink);
+    }
+
     .tag {
       border: 2px solid var(--line);
       background: var(--yellow);
@@ -618,7 +664,7 @@
       flex-wrap: wrap;
       justify-content: flex-end;
       gap: 8px;
-      max-width: 320px;
+      max-width: 430px;
     }
 
     .row-actions button {
@@ -655,8 +701,8 @@
     .preview-shell {
       width: min(1180px, 100%);
       height: min(780px, calc(100vh - 36px));
-      display: grid;
-      grid-template-rows: auto 1fr;
+      display: flex;
+      flex-direction: column;
       border: 5px solid var(--line);
       background: var(--paper);
       border-radius: var(--radius);
@@ -665,6 +711,7 @@
     }
 
     .preview-bar {
+      flex: 0 0 auto;
       display: grid;
       grid-template-columns: 1fr auto;
       align-items: center;
@@ -698,6 +745,7 @@
     }
 
     .preview-notice {
+      flex: 0 0 auto;
       display: none;
       border-bottom: 3px solid var(--line);
       background: #ffe0dc;
@@ -706,10 +754,23 @@
       font-size: 13px;
       font-weight: 900;
       overflow-wrap: anywhere;
+      max-height: min(96px, 18vh);
+      overflow-y: auto;
     }
 
     .preview-notice.visible {
       display: block;
+    }
+
+    .preview-notice.ok {
+      background: #dcffe4;
+      color: #155c33;
+    }
+
+    .preview-shell iframe {
+      flex: 1 1 auto;
+      min-height: 0;
+      height: auto;
     }
 
     iframe {
@@ -876,7 +937,7 @@
         <span class="brand-mark" aria-hidden="true"></span>
         <div>
           <h1>AI 小游戏工坊</h1>
-          <p class="subtitle">NEO-BRUTAL GAME MACHINE · 一句话生成、试玩、修改、下载带音效 HTML 小游戏</p>
+          <p class="subtitle">VIRAL GAME MACHINE · 一句话爆点、打开即玩、结果可晒的 HTML 小游戏</p>
         </div>
       </div>
       <div class="top-controls">
@@ -888,49 +949,30 @@
       </div>
     </header>
 
-    <section class="intro-grid" aria-label="项目能力说明">
-      <div class="intro-card">
-        <span class="stamp">BIG LIBRARY</span>
-        <strong>能生成多少？</strong>
-        <span class="mega-number">1000+</span>
-        <span>小游戏灵感库级别：推箱子、贪吃蛇、射击、迷宫、象棋、五子棋、塔防，以及更多带音效变体。</span>
-      </div>
-      <div class="intro-card">
-        <span class="stamp">1 LINE</span>
-        <strong>有多方便？</strong>
-        <span>一句话输入，自动扩写提示词；遇到象棋这类规则游戏，会启用 Think 推理、二次校验、人机对战和合法走子。</span>
-      </div>
-      <div class="intro-card">
-        <span class="stamp">SHIP IT</span>
-        <strong>怎么保存？</strong>
-        <span>本地游戏库自动保存，随时下载独立 index.html；试玩、静音控制、删除、重命名、继续迭代都在首页完成。</span>
-      </div>
-    </section>
-
     <section class="workspace">
       <section class="surface" aria-label="生成游戏">
         <div class="surface-head">
           <h2>生成新游戏</h2>
-          <span>DeepSeek + Audio</span>
+          <span>Hook + Challenge + Share</span>
         </div>
         <div class="surface-body">
           <form id="generateForm">
             <div class="field">
               <label for="gameName">游戏名称</label>
-              <input id="gameName" name="gameName" autocomplete="off" maxlength="80" placeholder="例如：推箱子游戏" required>
+              <input id="gameName" name="gameName" autocomplete="off" maxlength="80" placeholder="例如：画一个完美圆" required>
             </div>
 
             <div class="example-grid" aria-label="快速示例">
-              <button class="chip" type="button" data-example="推箱子游戏">推箱子</button>
-              <button class="chip" type="button" data-example="太空射击游戏">太空射击</button>
-              <button class="chip" type="button" data-example="新手友好贪吃蛇游戏" data-extra="初始速度慢一点，格子大一点，提供简单/普通/困难选择，分数提高后再缓慢加速，支持暂停和重新开始。">贪吃蛇</button>
-              <button class="chip" type="button" data-example="打砖块游戏">打砖块</button>
-              <button class="chip" type="button" data-example="迷宫逃脱游戏">迷宫逃脱</button>
+              <button class="chip" type="button" data-example="画一个完美圆" data-extra="用户拖动鼠标或手指画圆，结束后给出百分制圆度、称号、结果卡和分享文案。">完美圆</button>
+              <button class="chip" type="button" data-example="密码规则地狱" data-extra="输入密码，规则逐步变得离谱但可理解；展示当前规则、失败原因、最高通过规则数和吐槽式分享文案。">密码地狱</button>
+              <button class="chip" type="button" data-example="真假 Logo 挑战" data-extra="每轮展示两个极简品牌标记，让玩家判断哪个更像真 Logo；10 题结算正确率和称号。">真假判断</button>
+              <button class="chip" type="button" data-example="无限词语组合实验" data-extra="从四个基础词开始，两两组合生成新词；结果要离谱、有收藏列表、发现数量和分享文案。">组合实验</button>
+              <button class="chip" type="button" data-example="颜色记忆挑战" data-extra="先看 2 秒目标颜色，再用滑块还原；按色差给分、称号、结果卡和再挑战按钮。">颜色记忆</button>
             </div>
 
             <div class="field">
-              <label for="extraRequirements">补充需求</label>
-              <textarea id="extraRequirements" name="extraRequirements" maxlength="1200" placeholder="例如：像素风、三关、增加计时器、可爱角色"></textarea>
+              <label for="extraRequirements">爆款补充</label>
+              <textarea id="extraRequirements" name="extraRequirements" maxlength="1200" placeholder="例如：结果越离谱越好、要有称号、适合截图、30 秒一局、手机也好玩"></textarea>
             </div>
 
             <div class="action-row">
@@ -938,7 +980,7 @@
               <button id="importSampleBtn" class="btn-ghost" type="button">导入炸弹人示例</button>
             </div>
           </form>
-          <div id="message" class="message">准备就绪。</div>
+          <div id="message" class="message">准备就绪。输入一个能一句话讲清楚的挑战。</div>
         </div>
       </section>
 
@@ -966,7 +1008,8 @@
         <div id="previewTitle" class="preview-title">试玩</div>
         <div class="preview-actions">
           <button id="reloadPreviewBtn" class="btn-blue" type="button">重新加载</button>
-          <button id="repairPreviewBtn" class="btn-primary" type="button">修复白屏</button>
+          <button id="repairPreviewBtn" class="btn-primary" type="button">修复显示</button>
+          <button id="copyShareBtn" class="btn-green" type="button">复制分享</button>
           <button id="openWindowBtn" class="btn-ghost" type="button">新窗口</button>
           <button id="viewSourceBtn" class="btn-ghost" type="button">源码</button>
           <button id="downloadPreviewBtn" class="btn-green" type="button">下载</button>
@@ -1049,6 +1092,7 @@
         gamePreview: document.getElementById("gamePreview"),
         reloadPreviewBtn: document.getElementById("reloadPreviewBtn"),
         repairPreviewBtn: document.getElementById("repairPreviewBtn"),
+        copyShareBtn: document.getElementById("copyShareBtn"),
         openWindowBtn: document.getElementById("openWindowBtn"),
         viewSourceBtn: document.getElementById("viewSourceBtn"),
         downloadPreviewBtn: document.getElementById("downloadPreviewBtn"),
@@ -1097,6 +1141,7 @@
         els.searchInput.addEventListener("input", renderGames);
         els.reloadPreviewBtn.addEventListener("click", reloadPreview);
         els.repairPreviewBtn.addEventListener("click", repairPreview);
+        els.copyShareBtn.addEventListener("click", copyCurrentShareText);
         els.openWindowBtn.addEventListener("click", openPreviewWindow);
         els.viewSourceBtn.addEventListener("click", openSource);
         els.downloadPreviewBtn.addEventListener("click", () => currentPreview && downloadGame(currentPreview));
@@ -1125,17 +1170,26 @@
 
         window.addEventListener("message", (event) => {
           const data = event.data;
-          if (!data || data.source !== "game-preview" || !currentPreview) return;
+          if (!data || !currentPreview) return;
+          if (data.source === "ai-game-workshop" && data.type === "result") {
+            savePreviewResult(data).catch((error) => showPreviewNotice(`结果保存失败：${error.message}`));
+            return;
+          }
+          if (data.source !== "game-preview") return;
           if (data.type === "error" || data.type === "unhandledrejection") {
             const message = String(data.message || "未知脚本错误");
             currentPreviewErrors.push(message);
             currentPreviewErrors = currentPreviewErrors.slice(-6);
-            showPreviewNotice(`游戏脚本报错：${message}。可以点击“修复白屏”。`);
+            showPreviewNotice(`游戏脚本报错：${message}。可以点击“修复显示”。`);
           } else if (data.type === "probe") {
             currentPreviewDiagnostics.push(JSON.stringify(data.report));
             currentPreviewDiagnostics = currentPreviewDiagnostics.slice(-8);
             if (data.report && data.report.looksBlank) {
-              showPreviewNotice(`试玩已加载，但检测到画面可能为空白：${data.report.reason}。可以点“新窗口”判断是否为 iframe 问题，或点“修复白屏”。`);
+              showPreviewNotice(`试玩已加载，但检测到画面可能为空白：${data.report.reason}。可以点“新窗口”判断是否为 iframe 问题，或点“修复显示”。`);
+            } else if (data.report && data.report.needsScrollToPlay) {
+              showPreviewNotice("试玩已加载，但首屏没有可操作的游戏画面，主要内容可能被空白结果区推到下方。可以点击“修复显示”。");
+            } else if (data.report && data.report.layout && data.report.layout.largePassivePanelCount > 0) {
+              showPreviewNotice("试玩已加载，但首屏结果/状态区域过高，游戏控件不够靠前。可以点击“修复显示”。");
             }
           }
         });
@@ -1201,6 +1255,7 @@
           });
 
           const now = new Date().toISOString();
+          const viralMeta = buildViralMeta(gameName, extraRequirements, data);
           const game = {
             id: createId(),
             title: gameName,
@@ -1208,7 +1263,8 @@
             html: data.html,
             createdAt: now,
             updatedAt: now,
-            version: 1
+            version: 1,
+            ...viralMeta
           };
           await putGame(game);
           await refreshGames();
@@ -1243,7 +1299,8 @@
             ...currentEdit,
             html: data.html,
             version: Number(currentEdit.version || 1) + 1,
-            updatedAt: new Date().toISOString()
+            updatedAt: new Date().toISOString(),
+            ...buildViralMeta(currentEdit.title, instruction, data, currentEdit)
           };
           await putGame(updated);
           closeEdit();
@@ -1272,7 +1329,8 @@
             html,
             createdAt: existing?.createdAt || now,
             updatedAt: now,
-            version: existing ? Number(existing.version || 1) + 1 : 1
+            version: existing ? Number(existing.version || 1) + 1 : 1,
+            ...buildViralMeta("炸弹人示例", "经典炸弹人挑战，清空敌人并晒出通关结果。", {}, existing)
           };
           await putGame(sample);
           await refreshGames();
@@ -1294,7 +1352,7 @@
       function renderGames() {
         const query = els.searchInput.value.trim().toLowerCase();
         const filtered = games.filter((game) => {
-          const haystack = `${game.title} ${game.gameName}`.toLowerCase();
+          const haystack = `${game.title} ${game.gameName} ${game.hook || ""} ${(game.viralTags || []).join(" ")}`.toLowerCase();
           return !query || haystack.includes(query);
         });
 
@@ -1317,24 +1375,37 @@
         const title = document.createElement("h3");
         title.textContent = game.title;
 
+        const hook = document.createElement("div");
+        hook.className = "game-hook";
+        hook.textContent = game.hook || inferHook(game.title, game.gameName);
+
         const meta = document.createElement("div");
         meta.className = "meta";
-        [
+        const metaItems = [
           `v${game.version || 1}`,
-          formatDate(game.updatedAt)
-        ].forEach((text) => {
+          formatDate(game.updatedAt),
+          ...(Array.isArray(game.viralTags) ? game.viralTags.slice(0, 3) : [])
+        ];
+        metaItems.forEach((text, index) => {
           const tag = document.createElement("span");
-          tag.className = "tag";
+          tag.className = index >= 2 ? "tag viral" : "tag";
           tag.textContent = text;
           meta.appendChild(tag);
         });
 
-        info.append(title, meta);
+        info.append(title, hook, meta);
+        if (game.lastResult?.metric) {
+          const result = document.createElement("div");
+          result.className = "last-result";
+          result.textContent = `上次结果：${game.lastResult.metric}`;
+          info.appendChild(result);
+        }
 
         const actions = document.createElement("div");
         actions.className = "row-actions";
         actions.append(
           makeButton("试玩", "btn-blue", () => openPreview(game)),
+          makeButton("复制分享", "btn-green", () => copyShareText(getShareText(game), game)),
           makeButton("AI 修改", "btn-primary", () => openEdit(game)),
           makeButton("下载", "btn-green", () => downloadGame(game)),
           makeButton("重命名", "btn-ghost", () => renameGame(game)),
@@ -1352,6 +1423,126 @@
         button.textContent = text;
         button.addEventListener("click", onClick);
         return button;
+      }
+
+      function buildViralMeta(title, extraText, data = {}, existing = {}) {
+        const hook = normalizeInlineText(data.hook || existing.hook || inferHook(title, extraText), 120);
+        const viralTags = normalizeTags(data.viralTags || data.tags || existing.viralTags || inferTags(title, extraText));
+        const defaultShareText = normalizeInlineText(
+          data.defaultShareText ||
+          existing.defaultShareText ||
+          `我刚生成了「${title}」：${hook}。来试试你能拿到什么结果。`,
+          220
+        );
+        return {
+          hook,
+          viralTags,
+          defaultShareText,
+          lastResult: existing.lastResult || null
+        };
+      }
+
+      function inferHook(title, extraText) {
+        const text = `${title || ""} ${extraText || ""}`.toLowerCase();
+        if (/圆|circle/.test(text)) return "画一个尽可能完美的圆，看系统给你多少分。";
+        if (/密码|password/.test(text)) return "写一个满足越来越离谱规则的密码，看看你能撑到第几条。";
+        if (/真假|logo|fake|ai or not|判断/.test(text)) return "在真假之间快速下注，最后晒出你的判断力。";
+        if (/颜色|color/.test(text)) return "看一眼颜色，再凭记忆把它还原出来。";
+        if (/组合|craft|合成|词/.test(text)) return "把两个东西组合起来，看看会长出什么离谱结果。";
+        if (/象棋|棋|chess|gomoku|五子/.test(text)) return "用一局清晰可玩的规则挑战，证明你的策略还在线。";
+        return `挑战「${title || "这个小游戏"}」，拿到一个值得截图分享的结果。`;
+      }
+
+      function inferTags(title, extraText) {
+        const text = `${title || ""} ${extraText || ""}`.toLowerCase();
+        if (/圆|circle/.test(text)) return ["手感挑战", "百分制", "结果卡"];
+        if (/密码|password/.test(text)) return ["规则递进", "吐槽感", "可重玩"];
+        if (/真假|logo|fake|判断/.test(text)) return ["真假判断", "正确率", "称号"];
+        if (/颜色|color/.test(text)) return ["记忆挑战", "色差评分", "截图友好"];
+        if (/组合|craft|合成|词/.test(text)) return ["无限组合", "发现数", "离谱结果"];
+        return ["一句话挑战", "结果可晒", "可重玩"];
+      }
+
+      function normalizeTags(value) {
+        const list = Array.isArray(value) ? value : String(value || "").split(/[,\s，、]+/);
+        const clean = [];
+        for (const item of list) {
+          const text = normalizeInlineText(item, 12);
+          if (text && !clean.includes(text)) clean.push(text);
+          if (clean.length >= 4) break;
+        }
+        return clean.length ? clean : ["一句话挑战", "结果可晒", "可重玩"];
+      }
+
+      function normalizeInlineText(value, maxLength) {
+        return String(value || "")
+          .replace(/\s+/g, " ")
+          .trim()
+          .slice(0, maxLength);
+      }
+
+      async function savePreviewResult(data) {
+        const metric = normalizeInlineText(data.metric || data.result || data.score || "已完成挑战", 100);
+        const shareText = normalizeInlineText(data.shareText || getShareText(currentPreview), 280);
+        const updated = {
+          ...currentPreview,
+          lastResult: {
+            metric,
+            shareText,
+            at: new Date().toISOString()
+          },
+          updatedAt: new Date().toISOString()
+        };
+        currentPreview = updated;
+        await putGame(updated);
+        await refreshGames();
+        showPreviewNotice(`已记录结果：${metric}`, "ok");
+      }
+
+      function getShareText(game) {
+        if (!game) return "";
+        if (game.lastResult?.shareText) return game.lastResult.shareText;
+        return game.defaultShareText || `我刚玩了「${game.title}」：${game.hook || inferHook(game.title, game.gameName)}。来试试你的结果。`;
+      }
+
+      async function copyCurrentShareText() {
+        if (!currentPreview) return;
+        await copyShareText(getShareText(currentPreview), currentPreview);
+      }
+
+      async function copyShareText(text, game) {
+        const mode = await copyText(text);
+        const suffix = game?.lastResult?.metric ? `（${game.lastResult.metric}）` : "";
+        showMessage(mode === "prompt" ? `已打开复制兜底：${game?.title || "分享文案"}${suffix}` : `分享文案已复制：${game?.title || "当前游戏"}${suffix}`, "ok");
+      }
+
+      async function copyText(text) {
+        if (!text) return "empty";
+        if (navigator.clipboard && window.isSecureContext) {
+          try {
+            await navigator.clipboard.writeText(text);
+            return "clipboard";
+          } catch (error) {}
+        }
+
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "fixed";
+        textarea.style.left = "-9999px";
+        textarea.style.top = "0";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        try {
+          if (document.execCommand("copy")) return "fallback";
+        } catch (error) {
+        } finally {
+          textarea.remove();
+        }
+
+        window.prompt("复制下面的分享文案", text);
+        return "prompt";
       }
 
       function openPreview(game) {
@@ -1410,12 +1601,12 @@
         if (!currentPreview) return;
         const errorText = currentPreviewErrors.length
           ? currentPreviewErrors.join("\n")
-          : "预览 iframe 显示白屏，可能是初始化、Canvas 绘制、脚本异常或页面尺寸问题。";
+          : "预览 iframe 显示异常，可能是白屏、首屏大面积空白、游戏内容被推到折叠线下、Canvas 绘制、脚本异常或页面尺寸问题。";
         const diagnosticText = currentPreviewDiagnostics.length
           ? currentPreviewDiagnostics.join("\n")
           : "没有收到 iframe 自检数据。";
         const ruleHeavy = isRuleHeavyGame(`${currentPreview.title}\n${currentPreview.gameName || ""}`);
-        setBusy(true, ruleHeavy ? "DeepSeek Think 正在修复规则游戏" : "DeepSeek 正在修复白屏", ruleHeavy ? 900000 : 300000);
+        setBusy(true, ruleHeavy ? "DeepSeek Think 正在修复规则游戏" : "DeepSeek 正在修复显示", ruleHeavy ? 900000 : 300000);
         try {
           const data = await requestJson("/api/modify", {
             method: "POST",
@@ -1423,8 +1614,8 @@
               title: currentPreview.title,
               html: currentPreview.html,
               instruction: [
-                "修复这个游戏在 iframe 试玩窗口中白屏的问题。",
-                "要求：启动后必须立刻显示可见画面；如果脚本报错请修复；如果没有报错但 body/canvas 为空，请补齐 DOM、Canvas 尺寸和首帧绘制；不要使用外部资源、import、fetch、localStorage、sessionStorage 或 module script；保留完整单文件 HTML。",
+                "修复这个游戏在 iframe 试玩窗口中的显示问题：白屏、首屏大面积空白、主要游戏内容被空白结果区推到下方、或需要滚动才能开始玩。",
+                "要求：启动后必须立刻显示可见且可操作的游戏画面；主游戏卡片、画布、棋盘、滑块、开始按钮或答题控件必须在首屏内；空的结果/记录/状态区要隐藏或压缩，不能占据大块高度；如果脚本报错请修复；如果没有报错但 body/canvas 为空，请补齐 DOM、Canvas 尺寸和首帧绘制；不要使用外部资源、import、fetch、localStorage、sessionStorage 或 module script；保留完整单文件 HTML。",
                 "已捕获错误：",
                 errorText,
                 "iframe 自检数据：",
@@ -1488,13 +1679,22 @@
       }, "*");
     } catch (error) {}
   }
+  function isNodeVisible(node) {
+    var rect = node.getBoundingClientRect && node.getBoundingClientRect();
+    var style = window.getComputedStyle ? window.getComputedStyle(node) : null;
+    return Boolean(rect && rect.width > 1 && rect.height > 1 && (!style || style.visibility !== "hidden" && style.display !== "none" && Number(style.opacity || 1) > 0));
+  }
+  function isInFirstViewport(rect, ratio) {
+    var viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+    var viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
+    var cutoff = viewportHeight * (ratio || 0.92);
+    return Boolean(rect && rect.right > 0 && rect.left < viewportWidth && rect.bottom > 0 && rect.top < cutoff);
+  }
   function visibleElementCount() {
     var count = 0;
     var nodes = Array.prototype.slice.call(document.body ? document.body.querySelectorAll("*") : []);
     nodes.forEach(function(node) {
-      var rect = node.getBoundingClientRect && node.getBoundingClientRect();
-      var style = window.getComputedStyle ? window.getComputedStyle(node) : null;
-      if (rect && rect.width > 1 && rect.height > 1 && (!style || style.visibility !== "hidden" && style.display !== "none" && Number(style.opacity || 1) > 0)) {
+      if (isNodeVisible(node)) {
         count += 1;
       }
     });
@@ -1506,8 +1706,67 @@
       var rect = canvas.getBoundingClientRect && canvas.getBoundingClientRect();
       var style = window.getComputedStyle ? window.getComputedStyle(canvas) : null;
       var visible = Boolean(rect && rect.width > 1 && rect.height > 1 && (!style || style.visibility !== "hidden" && style.display !== "none" && Number(style.opacity || 1) > 0));
-      return { width: canvas.width || 0, height: canvas.height || 0, cssWidth: rect ? Math.round(rect.width) : 0, cssHeight: rect ? Math.round(rect.height) : 0, visible: visible };
+      return { width: canvas.width || 0, height: canvas.height || 0, cssWidth: rect ? Math.round(rect.width) : 0, cssHeight: rect ? Math.round(rect.height) : 0, visible: visible, inFirstViewport: isInFirstViewport(rect) };
     });
+  }
+  function layoutReport(canvases) {
+    var body = document.body;
+    var nodes = Array.prototype.slice.call(body ? body.querySelectorAll("*") : []);
+    var viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+    var documentHeight = Math.max(
+      body ? body.scrollHeight : 0,
+      body ? body.offsetHeight : 0,
+      document.documentElement ? document.documentElement.scrollHeight : 0,
+      document.documentElement ? document.documentElement.offsetHeight : 0
+    );
+    var controls = nodes.filter(function(node) {
+      var tag = node.tagName || "";
+      var role = (node.getAttribute("role") || "").toLowerCase();
+      return /^(button|a|input|select|textarea|summary)$/i.test(tag) || /^(button|link|slider|textbox|checkbox|radio|switch)$/i.test(role);
+    }).filter(isNodeVisible);
+    var controlsInFirstViewport = controls.filter(function(node) {
+      return isInFirstViewport(node.getBoundingClientRect && node.getBoundingClientRect());
+    });
+    var contentBelowFold = controls.some(function(node) {
+      var rect = node.getBoundingClientRect && node.getBoundingClientRect();
+      return rect && rect.top >= viewportHeight * 0.92;
+    }) || canvases.some(function(item) {
+      return item.visible && !item.inFirstViewport;
+    });
+    function textish(value) {
+      return String(value && value.baseVal ? value.baseVal : value || "");
+    }
+    function hasInteractiveDescendant(node) {
+      return Boolean(node.querySelector && node.querySelector("button,a,input,select,textarea,summary,canvas,svg,[role='button'],[role='slider'],[role='textbox'],[role='checkbox'],[role='radio'],[role='switch']"));
+    }
+    var largePassivePanels = nodes.filter(function(node) {
+      if (!isNodeVisible(node) || /^(html|body|main)$/i.test(node.tagName || "")) return false;
+      var rect = node.getBoundingClientRect && node.getBoundingClientRect();
+      var ownText = (node.innerText || "").trim();
+      var descriptor = [
+        textish(node.id),
+        textish(node.className),
+        textish(node.getAttribute("role")),
+        textish(node.getAttribute("aria-label")),
+        ownText.slice(0, 120)
+      ].join(" ").toLowerCase();
+      var looksPassive = /(result|score|status|notice|message|log|output|record|summary)/i.test(descriptor);
+      var isLargeTopPanel = viewportHeight && rect && rect.top >= -4 && rect.top < viewportHeight * 0.45 && rect.height > viewportHeight * 0.35;
+      return looksPassive && isLargeTopPanel && ownText.length < 220 && !hasInteractiveDescendant(node);
+    });
+    var scrollHeightRatio = viewportHeight ? documentHeight / viewportHeight : 1;
+    var hasCanvasInFirstViewport = canvases.some(function(item) {
+      return item.visible && item.inFirstViewport && item.width > 0 && item.height > 0;
+    });
+    var hasPrimaryInteraction = controlsInFirstViewport.length > 0 || hasCanvasInFirstViewport;
+    return {
+      documentHeight: documentHeight,
+      scrollHeightRatio: Math.round(scrollHeightRatio * 100) / 100,
+      controlsInFirstViewport: controlsInFirstViewport.length,
+      hasPrimaryInteraction: hasPrimaryInteraction,
+      largePassivePanelCount: largePassivePanels.length,
+      needsScrollToPlay: scrollHeightRatio > 1.15 && !hasPrimaryInteraction && contentBelowFold
+    };
   }
   function probe() {
     probeCount += 1;
@@ -1515,6 +1774,7 @@
     var bodyText = body ? (body.innerText || "").trim() : "";
     var visible = visibleElementCount();
     var canvases = canvasReport();
+    var layout = layoutReport(canvases);
     var hasVisibleCanvas = canvases.some(function(item) { return item.visible && item.width > 0 && item.height > 0; });
     var reason = "";
     var looksBlank = false;
@@ -1540,7 +1800,9 @@
           bodyTextLength: bodyText.length,
           visibleElements: visible,
           canvases: canvases,
+          layout: layout,
           viewport: { width: window.innerWidth, height: window.innerHeight },
+          needsScrollToPlay: layout.needsScrollToPlay,
           looksBlank: looksBlank,
           reason: reason || "未发现明显空白"
         }
@@ -1573,14 +1835,16 @@
         return script + html;
       }
 
-      function showPreviewNotice(text) {
+      function showPreviewNotice(text, type) {
         els.previewNotice.textContent = text;
         els.previewNotice.classList.add("visible");
+        els.previewNotice.classList.toggle("ok", type === "ok");
       }
 
       function clearPreviewNotice() {
         els.previewNotice.textContent = "";
         els.previewNotice.classList.remove("visible");
+        els.previewNotice.classList.remove("ok");
       }
 
       function openEdit(game) {

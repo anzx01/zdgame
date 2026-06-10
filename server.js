@@ -182,6 +182,36 @@ Difficulty rules:
 - When modifying an existing game because it is too hard, reduce speed, soften acceleration, add difficulty controls, and keep the original visual style.
 `.trim();
 
+const firstViewportLayoutInstructions = `
+First-viewport layout rules:
+- The initial viewport must show the actual playable surface or primary controls, not a tall empty intro/result/status/output area.
+- Do not place the main game card, canvas, board, sliders, start button, or answer controls below a large blank block.
+- Keep result, log, status, and output panels compact until they contain meaningful content; hide or collapse an empty result card before the game ends.
+- Avoid CSS min-height or height values on status/result/output panels that consume more than 35vh unless that panel is the active playfield.
+- The player should not need to scroll on desktop or mobile preview sizes to reach the first playable action.
+- When a result card is shown, keep replay and copy/share actions close to the result.
+`.trim();
+
+const viralGameInstructions = `
+Viral game workshop rules:
+- Treat the game as a small shareable internet toy, not just a playable demo.
+- The first screen must show a one-sentence challenge/hook that is understandable in under 3 seconds.
+- The core interaction must start immediately: one click, one key, one drag, one guess, or one obvious button.
+- The end state or result state must include a screenshot-friendly result card with a measurable result: score, percent, time, streak, discoveries, accuracy, rank, title, or funny verdict.
+- Include an obvious replay/restart action near the result card.
+- Include an obvious copy/share button. It should copy a compact share text when Clipboard API works and fall back to selecting text, a textarea, or prompt-style manual copy when clipboard is unavailable.
+- When the player completes, fails, wins, loses, or reaches a meaningful result, send that result to the parent workshop with exactly this shape:
+  parent.postMessage({
+    source: "ai-game-workshop",
+    type: "result",
+    title: "Game title",
+    metric: "Score or verdict",
+    shareText: "Short shareable sentence"
+  }, "*");
+- Do not wait for social networks or external services. The share loop must be fully offline and single-file.
+- Add window.__AI_GAME_META__ with at least: title, hook, genre, controls, winCondition, loseCondition, shareTemplate, sounds.
+`.trim();
+
 const rulesGameInstructions = `
 Rule-fidelity rules for established games:
 - If the requested game is a well-known rules game, prioritize rule correctness over decorative visuals.
@@ -250,7 +280,11 @@ function buildGeneratePrompt(gameName, extraRequirements) {
 默认规格：
 - 生成一个可直接在浏览器运行的“${gameName}”网页游戏。
 - 使用完整单文件 HTML 实现。
+- 用一个首屏可见的一句话挑战讲清楚玩法，例如“画一个最圆的圆”“撑过最多离谱密码规则”“10 题判断真假 Logo”。
 - 包含完整玩家控制、核心玩法规则、关卡或难度递增、计分/HUD、胜负条件、重新开始按钮和清晰可爱的 2D 动画效果。
+- 必须有结果页或结束态：展示可量化结果、称号或吐槽 verdict，并设计成适合截图的结果卡。
+- 必须有复制/分享结果按钮和重玩按钮；复制失败时提供手动复制兜底。
+- 必须在玩家完成、失败、胜利、结算或生成重要结果时调用 parent.postMessage({ source: "ai-game-workshop", type: "result", title, metric, shareText }, "*")，把结果回传给父页面。
 - 必须给游戏配上符合玩法的内嵌音效，例如移动、点击、收集、攻击、爆炸、吃子、胜利、失败等；使用 Web Audio API 合成，并提供静音按钮。
 - 游戏要尽量完整好玩，而不是静态演示。
 - 必须保证打开后首屏不是白屏：立即显示标题、HUD、画布或棋盘，并且即使等待用户按键也要有可见场景。
@@ -273,6 +307,7 @@ function buildModifyPrompt(title, html, instruction) {
 - 保留完整可运行的单文件 HTML 结构。
 - 只按修改要求更新游戏，不要删除无关核心功能。
 - 如果修改涉及玩法，请同步更新 HUD、胜负条件或说明按钮文案。
+- 保留或补齐爆款小游戏闭环：首屏一句话挑战、可量化结果卡、复制/分享按钮、重玩按钮，以及 ai-game-workshop result postMessage 回传。
 - 如果当前游戏缺少声音，或用户要求增加声音，必须加入符合玩法的 Web Audio API 内嵌音效和静音按钮，不得引用外部音频资源。
 - 如果用户指出棋类/牌类/传统规则游戏规则不对或布局不对，必须优先重建正确规则、初始数据、合法行动和人机对战逻辑，不要只调整视觉。
 - 修复后必须能在 iframe Blob URL 预览中直接显示首屏画面，避免白屏。
@@ -286,7 +321,7 @@ HTML_END>>>
 }
 
 function buildSystemInstructions(ruleHeavy, intent) {
-  const parts = [generatorInstructions, soundInstructions, difficultyInstructions, rulesGameInstructions];
+  const parts = [generatorInstructions, soundInstructions, difficultyInstructions, firstViewportLayoutInstructions, viralGameInstructions, rulesGameInstructions];
   if (intent) {
     parts.push(buildGenreInstructions(intent));
   }
@@ -342,14 +377,40 @@ Genre routing:
 - Detected genre: ${intent.label || intent.genre}.
 - These genre-specific requirements are hidden quality gates; satisfy them in the returned HTML.
 - ${instructions}
-- Add window.__AI_GAME_META__ with at least: title, genre, controls, winCondition, loseCondition, sounds.
+- Add window.__AI_GAME_META__ with at least: title, hook, genre, controls, winCondition, loseCondition, shareTemplate, sounds.
 - When practical, add window.__AI_GAME_TEST__ with reset(), step(action), and getState() so the local generator can run smoke tests.
 `.trim();
 }
 
+function createDefaultHook(title, detail) {
+  const text = `${title || ""} ${detail || ""}`.toLowerCase();
+  if (/圆|circle/.test(text)) return "画一个尽可能完美的圆，看系统给你多少分。";
+  if (/密码|password/.test(text)) return "写一个满足越来越离谱规则的密码，看看你能撑到第几条。";
+  if (/真假|logo|fake|ai or not|判断/.test(text)) return "在真假之间快速下注，最后晒出你的判断力。";
+  if (/颜色|color/.test(text)) return "看一眼颜色，再凭记忆把它还原出来。";
+  if (/组合|craft|合成|词/.test(text)) return "把两个东西组合起来，看看会长出什么离谱结果。";
+  if (/象棋|棋|chess|gomoku|五子/.test(text)) return "用一局清晰可玩的规则挑战，证明你的策略还在线。";
+  return `挑战「${title || "这个小游戏"}」，拿到一个值得截图分享的结果。`;
+}
+
+function createDefaultViralTags(title, detail) {
+  const text = `${title || ""} ${detail || ""}`.toLowerCase();
+  if (/圆|circle/.test(text)) return ["手感挑战", "百分制", "结果卡"];
+  if (/密码|password/.test(text)) return ["规则递进", "吐槽感", "可重玩"];
+  if (/真假|logo|fake|判断/.test(text)) return ["真假判断", "正确率", "称号"];
+  if (/颜色|color/.test(text)) return ["记忆挑战", "色差评分", "截图友好"];
+  if (/组合|craft|合成|词/.test(text)) return ["无限组合", "发现数", "离谱结果"];
+  return ["一句话挑战", "结果可晒", "可重玩"];
+}
+
+function createDefaultShareText(title, detail) {
+  const hook = createDefaultHook(title, detail);
+  return `我刚生成了「${title}」：${hook}。来试试你能拿到什么结果。`;
+}
+
 async function auditRuleGameHtml(html, context) {
   return requestGameHtml([
-    { role: "system", content: `${generatorInstructions}\n\n${soundInstructions}\n\n${rulesGameInstructions}\n\n${xiangqiExactSpec}\n\n${ruleAuditInstructions}` },
+    { role: "system", content: `${generatorInstructions}\n\n${soundInstructions}\n\n${difficultyInstructions}\n\n${firstViewportLayoutInstructions}\n\n${viralGameInstructions}\n\n${rulesGameInstructions}\n\n${xiangqiExactSpec}\n\n${ruleAuditInstructions}` },
     {
       role: "user",
       content: [
@@ -428,7 +489,17 @@ const server = http.createServer(async (req, res) => {
         html: finalResult.html,
         model: finalResult.model,
         audited: finalResult.audited,
-        repaired: finalResult.repairLoops > 0
+        repaired: finalResult.repairLoops > 0,
+        qualityPassed: finalResult.qualityPassed,
+        viralChecked: true,
+        intent: {
+          genre: intent.genre,
+          label: intent.label,
+          ruleHeavy: intent.ruleHeavy
+        },
+        hook: createDefaultHook(gameName, extraRequirements),
+        viralTags: createDefaultViralTags(gameName, extraRequirements),
+        defaultShareText: createDefaultShareText(gameName, extraRequirements)
       });
     }
 
@@ -454,7 +525,17 @@ const server = http.createServer(async (req, res) => {
         html: finalResult.html,
         model: finalResult.model,
         audited: finalResult.audited,
-        repaired: finalResult.repairLoops > 0
+        repaired: finalResult.repairLoops > 0,
+        qualityPassed: finalResult.qualityPassed,
+        viralChecked: true,
+        intent: {
+          genre: intent.genre,
+          label: intent.label,
+          ruleHeavy: intent.ruleHeavy
+        },
+        hook: createDefaultHook(title, instruction),
+        viralTags: createDefaultViralTags(title, instruction),
+        defaultShareText: createDefaultShareText(title, instruction)
       });
     }
 
@@ -594,7 +675,8 @@ async function repairGeneratedHtml({ title, html, contextText, intent, report, a
         "",
         "You are repairing a generated single-file HTML game after hidden local QA.",
         "Return only the corrected complete HTML. Do not explain.",
-        "Preserve the requested game and visual direction, but prioritize bootability, playability, correct rules, restart, controls, and Web Audio mute support."
+        "Preserve the requested game and visual direction, but prioritize bootability, playability, correct rules, restart, controls, and Web Audio mute support.",
+        "If the first viewport is mostly an empty status/result/output block and the playable game is below the fold, compact or hide that passive block and move the playable surface and primary controls into the first viewport."
       ].join("\n")
     },
     {
@@ -663,6 +745,11 @@ function runStaticQualityChecks(html, intent, options = {}) {
   addIssueIf(issues, !/(restart|reset|again|重新|重开|再来|开始|start)/i.test(html), "major", "missing-restart", "没有明显的开始/重开入口。");
   addIssueIf(issues, !/(AudioContext|webkitAudioContext)/.test(html), "major", "missing-web-audio", "没有发现 Web Audio API 音效实现。");
   addIssueIf(issues, !/(mute|sound|audio|volume|静音|声音|音效)/i.test(html), "major", "missing-mute-control", "没有明显的声音/静音控制。");
+  addIssueIf(issues, !/(challenge|hook|目标|挑战|玩法|试试|规则)/i.test(html), "major", "missing-hook", "缺少首屏一句话挑战或玩法钩子。");
+  addIssueIf(issues, !/(share|copy|clipboard|复制|分享|晒出|炫耀)/i.test(html), "major", "missing-share-control", "缺少复制/分享结果入口。");
+  addIssueIf(issues, !/(result|score|rank|title|verdict|accuracy|streak|time|percent|结果|分数|得分|称号|正确率|用时|百分)/i.test(html), "major", "missing-result-card", "缺少可量化结果卡或结算信息。");
+  addIssueIf(issues, !/parent\.postMessage\s*\(/.test(html) || !/ai-game-workshop/.test(html) || !/["']?type["']?\s*:\s*["']result["']/.test(html), "major", "missing-result-postmessage", "缺少向父页面回传结果的 ai-game-workshop postMessage。");
+  addIssueIf(issues, !/(shareText|metric)/.test(html), "major", "missing-share-payload", "结果回传应包含 metric 和 shareText。");
 
   if (intent.genre === "xiangqi") {
     addIssueIf(issues, !/(9|nine).{0,40}(10|ten)|x\s*[:<=>].{0,10}8|y\s*[:<=>].{0,10}9/i.test(html), "major", "xiangqi-board-size", "中国象棋应使用 9x10 交叉点棋盘。");
@@ -742,6 +829,8 @@ async function runBrowserPlaytest(html, intent) {
     addIssueIf(issues, !before.hasSoundLikeControl, "major", "no-sound-control", "试玩页面没有发现声音/静音控制。");
     addIssueIf(issues, before.hasCanvas && !before.hasNonBlankCanvas, "blocker", "blank-canvas", "检测到 canvas，但首屏像素为空。");
     addIssueIf(issues, !before.hasCanvas && before.visibleElementCount < 6, "major", "weak-render-surface", "没有 canvas，且 DOM 游戏画面元素偏少。");
+    addIssueIf(issues, before.firstViewportNeedsScrollToPlay, "major", "playfield-below-fold", "First viewport has no visible playable surface or primary controls; the game appears to be below a tall passive area.");
+    addIssueIf(issues, before.largePassivePanelCount > 0, "major", "oversized-passive-panel", "First viewport contains an oversized passive result/status/output panel before the playable controls.");
 
     const changed = before.visualSignature !== after.visualSignature || before.textSignature !== after.textSignature;
     addIssueIf(issues, !changed && intent.risk !== "rule", "minor", "input-no-visible-change", "按方向键和空格后画面没有明显变化，可能需要检查输入响应。");
@@ -797,6 +886,14 @@ async function launchPlaywrightBrowser(playwright) {
 
 async function collectPageDiagnostics(page) {
   return page.evaluate(() => {
+    var viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+    var viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
+
+    function isInFirstViewport(rect, ratio) {
+      var cutoff = viewportHeight * (ratio || 0.92);
+      return rect && rect.right > 0 && rect.left < viewportWidth && rect.bottom > 0 && rect.top < cutoff;
+    }
+
     function isVisible(element) {
       var rect = element.getBoundingClientRect();
       var style = window.getComputedStyle(element);
@@ -804,11 +901,14 @@ async function collectPageDiagnostics(page) {
     }
 
     function canvasInfo(canvas) {
+      var rect = canvas.getBoundingClientRect();
       var info = {
         width: canvas.width,
         height: canvas.height,
         clientWidth: canvas.clientWidth,
         clientHeight: canvas.clientHeight,
+        visible: isVisible(canvas),
+        inFirstViewport: isInFirstViewport(rect),
         nonBlank: false,
         signature: ""
       };
@@ -842,6 +942,56 @@ async function collectPageDiagnostics(page) {
     var visibleElements = elements.filter(isVisible);
     var canvases = Array.from(document.querySelectorAll("canvas")).map(canvasInfo);
     var hasNonBlankCanvas = canvases.some(function(info) { return info.nonBlank; });
+    var hasNonBlankCanvasInFirstViewport = canvases.some(function(info) { return info.nonBlank && info.inFirstViewport; });
+    var interactiveElements = elements.filter(function(el) {
+      var role = (el.getAttribute("role") || "").toLowerCase();
+      var tag = el.tagName || "";
+      return /^(button|a|input|select|textarea|summary)$/i.test(tag)
+        || /^(button|link|slider|textbox|checkbox|radio|switch)$/i.test(role)
+        || (el.tabIndex >= 0 && role !== "presentation");
+    });
+    var visibleInteractiveElements = interactiveElements.filter(isVisible);
+    var interactiveInFirstViewport = visibleInteractiveElements.filter(function(el) {
+      return isInFirstViewport(el.getBoundingClientRect());
+    });
+    var contentBelowFold = visibleInteractiveElements.some(function(el) {
+      return el.getBoundingClientRect().top >= viewportHeight * 0.92;
+    }) || canvases.some(function(info) {
+      return info.visible && !info.inFirstViewport;
+    });
+    var documentHeight = Math.max(
+      body ? body.scrollHeight : 0,
+      body ? body.offsetHeight : 0,
+      document.documentElement ? document.documentElement.scrollHeight : 0,
+      document.documentElement ? document.documentElement.offsetHeight : 0
+    );
+    var scrollHeightRatio = viewportHeight ? documentHeight / viewportHeight : 1;
+    var hasPrimaryInteractionInFirstViewport = interactiveInFirstViewport.length > 0 || hasNonBlankCanvasInFirstViewport;
+    var firstViewportNeedsScrollToPlay = scrollHeightRatio > 1.15 && !hasPrimaryInteractionInFirstViewport && contentBelowFold;
+
+    function textish(value) {
+      return String(value && value.baseVal ? value.baseVal : value || "");
+    }
+
+    function hasInteractiveDescendant(element) {
+      return Boolean(element.querySelector("button,a,input,select,textarea,summary,canvas,svg,[role='button'],[role='slider'],[role='textbox'],[role='checkbox'],[role='radio'],[role='switch']"));
+    }
+
+    var largePassivePanels = visibleElements.filter(function(el) {
+      if (/^(html|body|main)$/i.test(el.tagName || "")) return false;
+      var rect = el.getBoundingClientRect();
+      var ownText = (el.innerText || "").trim();
+      var descriptor = [
+        textish(el.id),
+        textish(el.className),
+        textish(el.getAttribute("role")),
+        textish(el.getAttribute("aria-label")),
+        ownText.slice(0, 120)
+      ].join(" ").toLowerCase();
+      var looksPassive = /(result|score|status|notice|message|log|output|record|summary)/i.test(descriptor);
+      var isLargeTopPanel = viewportHeight && rect.top >= -4 && rect.top < viewportHeight * 0.45 && rect.height > viewportHeight * 0.35;
+      return looksPassive && isLargeTopPanel && ownText.length < 220 && !hasInteractiveDescendant(el);
+    });
     var controlText = elements
       .filter(function(el) { return /^(button|a|input)$/i.test(el.tagName) || el.getAttribute("role") === "button"; })
       .map(function(el) { return (el.innerText || el.value || el.getAttribute("aria-label") || "").trim(); })
@@ -862,6 +1012,15 @@ async function collectPageDiagnostics(page) {
       visualSignature: [visibleElements.length, canvases.map(function(info) { return info.signature; }).join("|")].join(":"),
       hasRestartLikeControl: hasRestartLikeControl,
       hasSoundLikeControl: hasSoundLikeControl,
+      viewport: { width: viewportWidth, height: viewportHeight },
+      documentHeight: documentHeight,
+      scrollHeightRatio: Math.round(scrollHeightRatio * 100) / 100,
+      visibleInteractiveElementCount: visibleInteractiveElements.length,
+      interactiveInFirstViewportCount: interactiveInFirstViewport.length,
+      hasNonBlankCanvasInFirstViewport: hasNonBlankCanvasInFirstViewport,
+      hasPrimaryInteractionInFirstViewport: hasPrimaryInteractionInFirstViewport,
+      firstViewportNeedsScrollToPlay: firstViewportNeedsScrollToPlay,
+      largePassivePanelCount: largePassivePanels.length,
       looksBlank: looksBlank,
       blankReason: blankReason
     };

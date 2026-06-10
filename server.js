@@ -13,6 +13,7 @@ const LOG_FILE = path.join(ROOT, "server.log");
 const QUALITY_LOG_FILE = path.join(ROOT, "quality-events.jsonl");
 const PORT = Number(process.env.PORT || 8787);
 const MAX_BODY_BYTES = Number(process.env.MAX_BODY_BYTES || 2_000_000);
+const MAX_THUMBNAIL_BODY_BYTES = Number(process.env.MAX_THUMBNAIL_BODY_BYTES || 8_000_000);
 const DEEPSEEK_BASE_URL = trimTrailingSlash(process.env.DEEPSEEK_BASE_URL || "https://api.deepseek.com");
 const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL || "deepseek-chat";
 const DEEPSEEK_FALLBACK_MODEL = process.env.DEEPSEEK_FALLBACK_MODEL || "deepseek-v4-pro";
@@ -124,6 +125,20 @@ const GENRE_PRESETS = [
     ]
   },
   {
+    id: "matching",
+    label: "Matching / tile elimination",
+    risk: "puzzle",
+    keywords: ["连连看", "消消乐", "消除", "三消", "配对", "动物消除", "match-3", "match 3", "matching", "tile matching", "link-link", "link game", "eliminate"],
+    instructions: [
+      "Use a real 2D board state array as the source of truth; every rendered tile must correspond to the current board value.",
+      "For Lianliankan/link-link games, only remove two identical tiles when a clear path with at most two turns exists; show brief selection/path feedback.",
+      "After a valid match, immediately update the board data, clear or remove the matched cells, clear the selection, update score/moves, and redraw the board. Never display success while leaving the board unchanged.",
+      "If the design includes falling pieces, run a gravity/drop step after removal, compact each affected column, then refill empty cells with new tiles; animate or visibly show the board changing.",
+      "If the design does not use gravity, the removed cells must still remain visibly empty and become usable path space for later matches.",
+      "Expose window.__AI_GAME_TEST__ with getState() returning the board and, when practical, a selectCell(row,col) or step(action) helper."
+    ]
+  },
+  {
     id: "arcade",
     label: "Arcade",
     risk: "arcade",
@@ -179,6 +194,9 @@ Difficulty rules:
 - For Snake games, use a slow initial tick, large readable grid cells, gentle speed growth, pause/restart controls, and optional Easy/Normal/Hard difficulty selection.
 - For reaction games, shooters, dodgers, and arcade games, begin slowly and increase difficulty gradually.
 - Avoid failure in the first few seconds unless the player makes a clear mistake.
+- Do not start physics, timers, falling objects, enemy attacks, or loss checks until the player intentionally starts the round with a click, tap, key press, or Start button.
+- Arcade skill games such as juggling, keep-up, bouncing, catching, dodging, or rhythm games must include a ready state and at least 1.5 seconds of grace after the first input; never show Game Over with score 0 before meaningful player action.
+- Initial object positions must be forgiving: balls, hazards, enemies, or failure lines should not overlap or begin within an instant-loss zone, and collision/loss thresholds should be visibly fair.
 - When modifying an existing game because it is too hard, reduce speed, soften acceleration, add difficulty controls, and keep the original visual style.
 `.trim();
 
@@ -310,6 +328,7 @@ function buildModifyPrompt(title, html, instruction) {
 - 保留或补齐爆款小游戏闭环：首屏一句话挑战、可量化结果卡、复制/分享按钮、重玩按钮，以及 ai-game-workshop result postMessage 回传。
 - 如果当前游戏缺少声音，或用户要求增加声音，必须加入符合玩法的 Web Audio API 内嵌音效和静音按钮，不得引用外部音频资源。
 - 如果用户指出棋类/牌类/传统规则游戏规则不对或布局不对，必须优先重建正确规则、初始数据、合法行动和人机对战逻辑，不要只调整视觉。
+- 如果是连连看、消消乐、三消、配对消除或动物消除游戏，合法匹配后必须更新内部 board 数据并重绘棋盘；被消除格子要清空/移除；需要下落玩法时必须执行重力下落和补新块；不能只显示“消除成功”但棋盘不变。
 - 修复后必须能在 iframe Blob URL 预览中直接显示首屏画面，避免白屏。
 - 只输出修改后的完整 HTML，不要 Markdown，不要解释。
 
@@ -466,6 +485,13 @@ const server = http.createServer(async (req, res) => {
         baseUrl: DEEPSEEK_BASE_URL,
         hasKey: Boolean(process.env.DEEPSEEK_API_KEY)
       });
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/thumbnail") {
+      const body = await readJson(req, MAX_THUMBNAIL_BODY_BYTES);
+      const htmlInput = normalizeHtmlInput(body.html, MAX_THUMBNAIL_BODY_BYTES);
+      const thumbnail = await captureHtmlThumbnail(htmlInput);
+      return sendJson(res, { thumbnail });
     }
 
     if (req.method === "POST" && url.pathname === "/api/generate") {
@@ -676,7 +702,8 @@ async function repairGeneratedHtml({ title, html, contextText, intent, report, a
         "You are repairing a generated single-file HTML game after hidden local QA.",
         "Return only the corrected complete HTML. Do not explain.",
         "Preserve the requested game and visual direction, but prioritize bootability, playability, correct rules, restart, controls, and Web Audio mute support.",
-        "If the first viewport is mostly an empty status/result/output block and the playable game is below the fold, compact or hide that passive block and move the playable surface and primary controls into the first viewport."
+        "If the first viewport is mostly an empty status/result/output block and the playable game is below the fold, compact or hide that passive block and move the playable surface and primary controls into the first viewport.",
+        "For matching/elimination games, fix the state transition itself: after a valid match, mutate the board array, clear selections, redraw all tiles, update score/moves, and run gravity/refill when the game promises falling pieces. Do not merely change the success message."
       ].join("\n")
     },
     {
@@ -762,6 +789,14 @@ function runStaticQualityChecks(html, intent, options = {}) {
     addIssueIf(issues, !/(levels|level|关卡)/i.test(html), "major", "sokoban-levels", "推箱子应包含多个清晰可解关卡。");
   }
 
+  if (intent.genre === "matching") {
+    addIssueIf(issues, !/(board|grid|tiles|cells|matrix|棋盘|格子)/i.test(html), "major", "matching-state-model", "消除/配对游戏需要明确的棋盘状态数据。");
+    addIssueIf(issues, !/(renderBoard|drawBoard|redraw|renderGrid|updateBoard|drawTiles|renderTiles|draw\s*\(|render\s*\()/i.test(html), "major", "matching-redraw", "消除/配对游戏需要在状态变化后重绘棋盘。");
+    addIssueIf(issues, !/(removeTile|clearTile|clearMatch|matched|removed|cleared|splice|delete|null|empty|消除|清空|移除)/i.test(html), "major", "matching-remove-state", "合法匹配后必须清空或移除对应棋盘格。");
+    addIssueIf(issues, /(下落|掉落|补新|补充|gravity|drop|fall|refill|collapse)/i.test(html)
+      && !/(applyGravity|dropTiles|fallTiles|collapseColumns|refillBoard|refillTiles|fillEmpty|fillHoles|compactColumns)/i.test(html), "major", "matching-gravity-refill", "承诺下落/补块的消除游戏必须实现重力下落和补新块。");
+  }
+
   if (options.forceRuleAudit) {
     issues.push({
       severity: "major",
@@ -831,6 +866,7 @@ async function runBrowserPlaytest(html, intent) {
     addIssueIf(issues, !before.hasCanvas && before.visibleElementCount < 6, "major", "weak-render-surface", "没有 canvas，且 DOM 游戏画面元素偏少。");
     addIssueIf(issues, before.firstViewportNeedsScrollToPlay, "major", "playfield-below-fold", "First viewport has no visible playable surface or primary controls; the game appears to be below a tall passive area.");
     addIssueIf(issues, before.largePassivePanelCount > 0, "major", "oversized-passive-panel", "First viewport contains an oversized passive result/status/output panel before the playable controls.");
+    addIssueIf(issues, before.hasImmediateGameOver, "major", "instant-game-over", "Game reaches a loss/result state before meaningful player input; add a ready/start state, grace period, and fair initial positions.");
 
     const changed = before.visualSignature !== after.visualSignature || before.textSignature !== after.textSignature;
     addIssueIf(issues, !changed && intent.risk !== "rule", "minor", "input-no-visible-change", "按方向键和空格后画面没有明显变化，可能需要检查输入响应。");
@@ -860,6 +896,75 @@ async function runBrowserPlaytest(html, intent) {
       await browser.close().catch(() => {});
     }
   }
+}
+
+async function captureHtmlThumbnail(html) {
+  const state = getPlaywrightState();
+  if (!state.available) {
+    const error = new Error("Playwright 不可用，无法生成游戏截图。");
+    error.statusCode = 503;
+    error.publicDetail = state.reason;
+    throw error;
+  }
+
+  let browser = null;
+  let page = null;
+  try {
+    browser = await getThumbnailBrowser(state.playwright);
+    page = await browser.newPage({
+      viewport: { width: 960, height: 540 },
+      deviceScaleFactor: 1
+    });
+    await page.route("**/*", (route) => {
+      const request = route.request();
+      if (request.isNavigationRequest() || request.url().startsWith("data:") || request.url().startsWith("about:")) {
+        return route.continue();
+      }
+      return route.abort();
+    });
+    await page.setContent(html, { waitUntil: "domcontentloaded", timeout: PLAYTEST_TIMEOUT_MS });
+    await page.waitForTimeout(1200);
+    await page.evaluate(() => {
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
+      document.body.style.margin ||= "0";
+      if (!document.body.style.background) {
+        document.body.style.background = "#ffffff";
+      }
+    }).catch(() => {});
+    const buffer = await page.screenshot({
+      type: "jpeg",
+      quality: 76,
+      fullPage: false
+    });
+    return `data:image/jpeg;base64,${buffer.toString("base64")}`;
+  } finally {
+    if (page) {
+      await page.close().catch(() => {});
+    }
+  }
+}
+
+async function getThumbnailBrowser(playwright) {
+  if (!getThumbnailBrowser.promise) {
+    getThumbnailBrowser.promise = launchPlaywrightBrowser(playwright)
+      .then((browser) => {
+        browser.on("disconnected", () => {
+          getThumbnailBrowser.promise = null;
+        });
+        return browser;
+      })
+      .catch((error) => {
+        getThumbnailBrowser.promise = null;
+        throw error;
+      });
+  }
+  const browser = await getThumbnailBrowser.promise;
+  if (typeof browser.isConnected === "function" && !browser.isConnected()) {
+    getThumbnailBrowser.promise = null;
+    return getThumbnailBrowser(playwright);
+  }
+  return browser;
 }
 
 async function launchPlaywrightBrowser(playwright) {
@@ -998,6 +1103,8 @@ async function collectPageDiagnostics(page) {
       .join(" ");
     var hasRestartLikeControl = /(restart|reset|again|start|play|重新|重开|再来|开始)/i.test(controlText + " " + text);
     var hasSoundLikeControl = /(mute|sound|audio|volume|静音|声音|音效)/i.test(controlText + " " + text);
+    var hasImmediateGameOver = /(game\s*over|you\s*(lost|lose|died)|failed|failure|游戏结束|挑战失败|失败了|你输了|再来一局)/i.test(text)
+      && !/(点击开始|开始游戏|按键开始|press\s+start|tap\s+to\s+start|ready|准备|start\s+button)/i.test(text);
     var looksBlank = !text && visibleElements.length < 3 && !hasNonBlankCanvas;
     var blankReason = looksBlank ? "no text, too few visible elements, and no nonblank canvas" : "";
 
@@ -1021,6 +1128,7 @@ async function collectPageDiagnostics(page) {
       hasPrimaryInteractionInFirstViewport: hasPrimaryInteractionInFirstViewport,
       firstViewportNeedsScrollToPlay: firstViewportNeedsScrollToPlay,
       largePassivePanelCount: largePassivePanels.length,
+      hasImmediateGameOver: hasImmediateGameOver,
       looksBlank: looksBlank,
       blankReason: blankReason
     };
@@ -1228,14 +1336,14 @@ function cleanAndValidateHtml(text) {
   return html;
 }
 
-function readJson(req) {
+function readJson(req, maxBytes = MAX_BODY_BYTES) {
   return new Promise((resolve, reject) => {
     let bytes = 0;
     const chunks = [];
 
     req.on("data", (chunk) => {
       bytes += chunk.length;
-      if (bytes > MAX_BODY_BYTES) {
+      if (bytes > maxBytes) {
         const error = new Error("请求内容过大。");
         error.statusCode = 413;
         reject(error);
@@ -1281,13 +1389,13 @@ function normalizeOptionalText(value, maxLength) {
   return value.trim().slice(0, maxLength);
 }
 
-function normalizeHtmlInput(value) {
+function normalizeHtmlInput(value, maxBytes = MAX_BODY_BYTES) {
   if (typeof value !== "string" || !value.trim()) {
     const error = new Error("html 不能为空。");
     error.statusCode = 400;
     throw error;
   }
-  if (Buffer.byteLength(value, "utf8") > MAX_BODY_BYTES - 20_000) {
+  if (Buffer.byteLength(value, "utf8") > maxBytes - 20_000) {
     const error = new Error("HTML 内容过大，无法提交给 AI 修改。");
     error.statusCode = 413;
     throw error;

@@ -69,7 +69,7 @@
     }
 
     body {
-      padding: 18px;
+      padding: 12px;
     }
 
     button,
@@ -136,39 +136,45 @@
     }
 
     .app {
-      width: min(1240px, 100%);
-      margin: 0 auto;
+      width: 100%;
+      margin: 0;
+      min-height: calc(100vh - 24px);
+      display: flex;
+      flex-direction: column;
     }
 
     .topline {
-      display: grid;
-      grid-template-columns: 1fr minmax(240px, auto);
-      align-items: stretch;
-      gap: 14px;
-      margin-bottom: 14px;
+      position: sticky;
+      top: 0;
+      z-index: 12;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      background: var(--paper);
+      padding-bottom: 4px;
     }
 
     .top-controls {
-      display: grid;
-      gap: 10px;
-      align-content: center;
+      flex: 0 0 auto;
+      margin-left: auto;
     }
 
     .theme-switch {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 6px;
-      border: 5px solid var(--line);
+      border: 3px solid var(--line);
       background: #fff;
-      box-shadow: 8px 8px 0 var(--line);
-      padding: 7px;
+      box-shadow: 4px 4px 0 var(--line);
+      padding: 5px;
       border-radius: var(--radius);
     }
 
     .theme-switch button {
       box-shadow: none;
-      border-width: 3px;
-      padding: 9px 10px;
+      border-width: 2px;
+      padding: 7px 18px;
       background: #fff;
       font-size: 13px;
     }
@@ -180,13 +186,22 @@
     .brand {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 10px;
+      flex: 1 1 auto;
       min-width: 0;
-      border: 5px solid var(--line);
+      border: 3px solid var(--line);
       background: var(--paper);
-      box-shadow: 10px 10px 0 var(--line);
-      padding: 18px;
-      transform: rotate(-0.6deg);
+      box-shadow: 5px 5px 0 var(--line);
+      padding: 8px 12px;
+      transform: none;
+    }
+
+    .brand > div {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      min-width: 0;
+      white-space: nowrap;
     }
 
     [data-theme="storybook"] .brand {
@@ -199,14 +214,14 @@
     }
 
     .brand-mark {
-      width: 68px;
-      height: 68px;
-      flex: 0 0 68px;
-      border: 5px solid var(--line);
+      width: 42px;
+      height: 42px;
+      flex: 0 0 42px;
+      border: 3px solid var(--line);
       background:
         linear-gradient(90deg, transparent 0 24px, rgba(8, 8, 8, 0.22) 24px 29px, transparent 29px),
         linear-gradient(0deg, var(--red) 0 50%, var(--yellow) 50%);
-      box-shadow: 7px 7px 0 var(--line);
+      box-shadow: 4px 4px 0 var(--line);
       border-radius: var(--radius);
       position: relative;
     }
@@ -219,28 +234,28 @@
     }
 
     .brand-mark::before {
-      width: 16px;
-      height: 7px;
-      left: 8px;
-      top: 11px;
-      box-shadow: 21px 0 0 var(--ink), 10px 22px 0 var(--ink);
+      width: 10px;
+      height: 5px;
+      left: 6px;
+      top: 7px;
+      box-shadow: 13px 0 0 var(--ink), 7px 14px 0 var(--ink);
     }
 
     .brand-mark::after {
-      width: 8px;
-      height: 8px;
-      right: 8px;
-      bottom: 8px;
+      width: 6px;
+      height: 6px;
+      right: 5px;
+      bottom: 5px;
       background: var(--cyan);
-      border: 3px solid var(--ink);
+      border: 2px solid var(--ink);
     }
 
     h1 {
       margin: 0;
-      font-size: clamp(42px, 6.6vw, 78px);
-      line-height: 0.9;
+      font-size: clamp(28px, 3.8vw, 48px);
+      line-height: 0.95;
       letter-spacing: 0;
-      text-shadow: 5px 5px 0 var(--yellow), 9px 9px 0 var(--pink);
+      text-shadow: 3px 3px 0 var(--yellow), 5px 5px 0 var(--pink);
     }
 
     [data-theme="storybook"] h1 {
@@ -248,10 +263,10 @@
     }
 
     .subtitle {
-      margin: 9px 0 0;
+      margin: 0 0 0 12px;
       color: var(--ink);
       font-weight: 900;
-      font-size: clamp(14px, 1.45vw, 18px);
+      font-size: clamp(12px, 1.2vw, 15px);
       line-height: 1.2;
       overflow-wrap: anywhere;
     }
@@ -392,9 +407,11 @@
 
     .workspace {
       display: grid;
-      grid-template-columns: minmax(340px, 0.86fr) minmax(430px, 1.14fr);
-      gap: 18px;
-      align-items: start;
+      grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
+      gap: 14px;
+      align-items: stretch;
+      flex: 1 1 auto;
+      min-height: 0;
     }
 
     .surface {
@@ -406,11 +423,20 @@
     }
 
     .surface:nth-child(1) {
-      transform: rotate(-0.25deg);
+      position: sticky;
+      top: 76px;
+      z-index: 8;
+      transform: none;
+      align-self: start;
+      max-height: calc(100vh - 88px);
+      overflow-y: auto;
     }
 
     .surface:nth-child(2) {
-      transform: rotate(0.22deg);
+      transform: none;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
     }
 
     .surface-head {
@@ -436,10 +462,14 @@
 
     .library-body {
       padding: 0;
+      flex: 1 1 auto;
+      min-height: 0;
     }
 
     .library-scroll {
-      max-height: min(62vh, 650px);
+      height: 100%;
+      max-height: none;
+      min-height: 0;
       overflow-y: auto;
       padding: 16px;
       scrollbar-width: thin;
@@ -462,7 +492,7 @@
     }
 
     [data-theme="storybook"] .library-scroll {
-      max-height: min(64vh, 680px);
+      max-height: none;
       scrollbar-color: var(--green) rgba(255, 248, 223, 0.78);
     }
 
@@ -577,19 +607,111 @@
 
     .game-list {
       display: grid;
-      gap: 10px;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
     }
 
     .game-row {
-      border: 4px solid var(--line);
+      position: relative;
+      border: 3px solid var(--line);
       background: #fff;
-      border-radius: 7px;
-      padding: 12px;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 12px;
-      align-items: center;
-      box-shadow: 6px 6px 0 var(--line);
+      border-radius: 6px;
+      padding: 0;
+      min-height: 0;
+      aspect-ratio: 16 / 10;
+      box-shadow: 3px 3px 0 var(--line);
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+    }
+
+    .game-row:hover,
+    .game-row:focus-visible {
+      background: #fffdf1;
+      transform: translate(-2px, -2px);
+      box-shadow: 5px 5px 0 var(--line);
+    }
+
+    .game-thumb {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background:
+        linear-gradient(135deg, var(--thumb-a, #ffe500), var(--thumb-b, #00c2ff) 58%, var(--thumb-c, #ff6bd6));
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .game-thumb::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.18) 1px, transparent 1px) 0 0 / 18px 18px,
+        linear-gradient(0deg, rgba(8, 8, 8, 0.14) 1px, transparent 1px) 0 0 / 18px 18px;
+      mix-blend-mode: multiply;
+      pointer-events: none;
+    }
+
+    .game-thumb::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      z-index: 2;
+      height: 58%;
+      background: linear-gradient(0deg, rgba(8, 8, 8, 0.86), rgba(8, 8, 8, 0.42) 56%, transparent);
+      pointer-events: none;
+    }
+
+    .game-thumb img {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .thumb-fallback {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      background:
+        linear-gradient(115deg, transparent 0 36%, rgba(255, 255, 255, 0.32) 46%, transparent 58%) -160% 0 / 220% 100%,
+        linear-gradient(135deg, var(--thumb-a, #ffe500), var(--thumb-b, #00c2ff) 58%, var(--thumb-c, #ff6bd6));
+      animation: thumb-sweep 1.4s ease-in-out infinite;
+    }
+
+    @keyframes thumb-sweep {
+      to {
+        background-position: 160% 0, 0 0;
+      }
+    }
+
+    .card-delete {
+      position: absolute;
+      right: 7px;
+      top: 7px;
+      z-index: 4;
+      border-width: 2px;
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      font-size: 16px;
+      line-height: 1;
+      box-shadow: 0 3px 0 var(--line);
+      opacity: 0;
+      transform: translateY(-2px);
+      transition: opacity 120ms ease, transform 120ms ease;
+    }
+
+    .game-row:hover .card-delete,
+    .game-row:focus-within .card-delete {
+      opacity: 1;
+      transform: translateY(0);
     }
 
     [data-theme="storybook"] button,
@@ -607,71 +729,20 @@
       box-shadow: 0 4px 14px rgba(83, 70, 45, 0.16);
     }
 
-    .game-row h3 {
-      margin: 0 0 5px;
-      font-size: 20px;
+    .game-thumb h3 {
+      position: absolute;
+      left: 7px;
+      right: 7px;
+      bottom: 6px;
+      z-index: 3;
+      margin: 0;
+      color: #fff;
+      font-size: 12px;
       line-height: 1.1;
-      overflow-wrap: anywhere;
-    }
-
-    .meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 7px;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 900;
-    }
-
-    .game-hook {
-      margin: 7px 0 0;
-      font-size: 13px;
-      line-height: 1.35;
-      font-weight: 900;
-      color: var(--muted);
-      overflow-wrap: anywhere;
-    }
-
-    .last-result {
-      display: inline-flex;
-      align-items: center;
-      max-width: 100%;
-      margin-top: 7px;
-      border: 2px solid var(--line);
-      background: #dcffe4;
-      color: #155c33;
-      border-radius: var(--radius);
-      padding: 4px 7px;
-      font-size: 12px;
-      font-weight: 900;
-      overflow-wrap: anywhere;
-    }
-
-    .tag.viral {
-      background: #fff;
-      color: var(--ink);
-    }
-
-    .tag {
-      border: 2px solid var(--line);
-      background: var(--yellow);
-      border-radius: var(--radius);
-      padding: 3px 7px;
-    }
-
-    .row-actions {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      gap: 8px;
-      max-width: 430px;
-    }
-
-    .row-actions button {
-      padding: 8px 10px;
-      font-size: 13px;
-      border-width: 2px;
-      box-shadow: 0 3px 0 var(--line);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-shadow: 0 2px 0 rgba(8, 8, 8, 0.82);
+      white-space: nowrap;
     }
 
     .empty-state {
@@ -693,14 +764,15 @@
       inset: 0;
       z-index: 20;
       background: rgba(8, 8, 8, 0.76);
-      padding: 18px;
+      padding: 12px;
       display: grid;
       place-items: center;
+      overflow: hidden;
     }
 
     .preview-shell {
-      width: min(1180px, 100%);
-      height: min(780px, calc(100vh - 36px));
+      width: min(1240px, calc(100vw - 24px));
+      height: min(820px, calc(100dvh - 24px));
       display: flex;
       flex-direction: column;
       border: 5px solid var(--line);
@@ -771,6 +843,8 @@
       flex: 1 1 auto;
       min-height: 0;
       height: auto;
+      overflow: hidden;
+      overscroll-behavior: none;
     }
 
     iframe {
@@ -779,6 +853,7 @@
       border: 0;
       background: #fff;
       display: block;
+      overflow: hidden;
     }
 
     .dialog {
@@ -869,6 +944,12 @@
       font-size: 13px;
     }
 
+    @media (max-width: 1200px) {
+      .game-list {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+
     @media (max-width: 900px) {
       body {
         padding: 10px;
@@ -880,26 +961,31 @@
         grid-template-columns: 1fr;
       }
 
+      .topline {
+        flex-wrap: wrap;
+      }
+
+      .brand > div {
+        flex-wrap: wrap;
+        white-space: normal;
+      }
+
       .brand {
         align-items: flex-start;
         transform: none;
       }
 
       h1 {
-        font-size: clamp(40px, 16vw, 72px);
-      }
-
-      .status-pill {
-        justify-self: start;
-        transform: none;
+        font-size: clamp(32px, 13vw, 56px);
       }
 
       .top-controls {
-        grid-template-columns: 1fr;
+        margin-left: 0;
       }
 
       .library-scroll {
-        max-height: 58vh;
+        height: auto;
+        max-height: none;
       }
 
       .intro-card,
@@ -915,9 +1001,8 @@
         grid-template-columns: 1fr;
       }
 
-      .row-actions {
-        justify-content: start;
-        max-width: none;
+      .game-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .preview-bar {
@@ -941,7 +1026,6 @@
         </div>
       </div>
       <div class="top-controls">
-        <div id="providerStatus" class="status-pill">DeepSeek 检测中</div>
         <div class="theme-switch" aria-label="界面风格切换">
           <button id="neoThemeBtn" type="button" data-theme-choice="neo">NEO</button>
           <button id="storyThemeBtn" type="button" data-theme-choice="storybook">童话</button>
@@ -953,7 +1037,6 @@
       <section class="surface" aria-label="生成游戏">
         <div class="surface-head">
           <h2>生成新游戏</h2>
-          <span>Hook + Challenge + Share</span>
         </div>
         <div class="surface-body">
           <form id="generateForm">
@@ -1017,7 +1100,7 @@
         </div>
       </div>
       <div id="previewNotice" class="preview-notice"></div>
-      <iframe id="gamePreview" title="游戏试玩" referrerpolicy="no-referrer"></iframe>
+      <iframe id="gamePreview" title="游戏试玩" referrerpolicy="no-referrer" scrolling="no"></iframe>
     </div>
   </div>
 
@@ -1073,7 +1156,6 @@
       const THEME_KEY = "ai-mini-game-workshop-theme";
 
       const els = {
-        providerStatus: document.getElementById("providerStatus"),
         neoThemeBtn: document.getElementById("neoThemeBtn"),
         storyThemeBtn: document.getElementById("storyThemeBtn"),
         libraryCount: document.getElementById("libraryCount"),
@@ -1123,6 +1205,10 @@
       let progressTimer = null;
       let progressStartedAt = 0;
       let progressEstimateMs = 180000;
+      let thumbnailCaptureQueue = [];
+      let thumbnailCaptureRunning = false;
+      const thumbnailCaptureAttempted = new Set();
+      const THUMBNAIL_CAPTURE_CONCURRENCY = 3;
 
       init();
 
@@ -1186,6 +1272,8 @@
             currentPreviewDiagnostics = currentPreviewDiagnostics.slice(-8);
             if (data.report && data.report.looksBlank) {
               showPreviewNotice(`试玩已加载，但检测到画面可能为空白：${data.report.reason}。可以点“新窗口”判断是否为 iframe 问题，或点“修复显示”。`);
+            } else if (data.report && data.report.hasImmediateGameOver) {
+              showPreviewNotice("试玩已加载，但游戏在有效操作前就进入失败/结算状态。可以点击“修复显示”。");
             } else if (data.report && data.report.needsScrollToPlay) {
               showPreviewNotice("试玩已加载，但首屏没有可操作的游戏画面，主要内容可能被空白结果区推到下方。可以点击“修复显示”。");
             } else if (data.report && data.report.layout && data.report.layout.largePassivePanelCount > 0) {
@@ -1221,20 +1309,10 @@
       async function loadHealth() {
         try {
           const health = await requestJson("/api/health");
-          els.providerStatus.textContent = health.hasKey
-            ? `DeepSeek ${health.model} 已连接`
-            : `DeepSeek ${health.model} 未配置 Key`;
-          els.providerStatus.title = health.ruleModel
-            ? `规则类游戏模型：${health.ruleModel}；Thinking：${health.thinking || "enabled"}；Reasoning：${health.reasoningEffort || "high"}`
-            : "";
-          els.providerStatus.classList.toggle("ready", Boolean(health.hasKey));
-          els.providerStatus.classList.toggle("warn", !health.hasKey);
           if (!health.hasKey) {
             showMessage("请先在终端设置 DeepSeek API Key，再生成新游戏。", "error");
           }
         } catch (error) {
-          els.providerStatus.textContent = "后端未连接";
-          els.providerStatus.classList.add("warn");
           showMessage(error.message, "error");
         }
       }
@@ -1300,7 +1378,8 @@
             html: data.html,
             version: Number(currentEdit.version || 1) + 1,
             updatedAt: new Date().toISOString(),
-            ...buildViralMeta(currentEdit.title, instruction, data, currentEdit)
+            ...buildViralMeta(currentEdit.title, instruction, data, currentEdit),
+            thumbnail: ""
           };
           await putGame(updated);
           closeEdit();
@@ -1345,8 +1424,18 @@
 
       async function refreshGames() {
         games = await getAllGames();
+        await migrateLegacyThumbnails();
         games.sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)));
         renderGames();
+      }
+
+      async function migrateLegacyThumbnails() {
+        const legacy = games.filter((game) => isLegacyThumbnail(game.thumbnail));
+        if (!legacy.length) return;
+        for (const game of legacy) {
+          game.thumbnail = "";
+          await putGame(game);
+        }
       }
 
       function renderGames() {
@@ -1361,68 +1450,94 @@
           : `${games.length} 个`;
         els.gameList.textContent = "";
         els.emptyState.classList.toggle("hidden", filtered.length > 0);
-
         for (const game of filtered) {
           els.gameList.appendChild(createGameRow(game));
         }
+        scheduleMissingThumbnails(filtered);
       }
 
       function createGameRow(game) {
         const row = document.createElement("article");
         row.className = "game-row";
-
-        const info = document.createElement("div");
-        const title = document.createElement("h3");
-        title.textContent = game.title;
-
-        const hook = document.createElement("div");
-        hook.className = "game-hook";
-        hook.textContent = game.hook || inferHook(game.title, game.gameName);
-
-        const meta = document.createElement("div");
-        meta.className = "meta";
-        const metaItems = [
-          `v${game.version || 1}`,
-          formatDate(game.updatedAt),
-          ...(Array.isArray(game.viralTags) ? game.viralTags.slice(0, 3) : [])
-        ];
-        metaItems.forEach((text, index) => {
-          const tag = document.createElement("span");
-          tag.className = index >= 2 ? "tag viral" : "tag";
-          tag.textContent = text;
-          meta.appendChild(tag);
+        row.dataset.gameId = game.id;
+        row.tabIndex = 0;
+        row.addEventListener("click", () => openPreview(game));
+        row.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openPreview(game);
+          }
         });
 
-        info.append(title, hook, meta);
-        if (game.lastResult?.metric) {
-          const result = document.createElement("div");
-          result.className = "last-result";
-          result.textContent = `上次结果：${game.lastResult.metric}`;
-          info.appendChild(result);
-        }
+        const thumb = createGameThumb(game);
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "card-delete btn-danger";
+        deleteButton.textContent = "×";
+        deleteButton.setAttribute("aria-label", `删除 ${game.title}`);
+        deleteButton.title = "删除";
+        deleteButton.addEventListener("click", (event) => {
+          event.stopPropagation();
+          deleteGame(game);
+        });
+        const title = document.createElement("h3");
+        title.textContent = game.title;
+        thumb.appendChild(title);
 
-        const actions = document.createElement("div");
-        actions.className = "row-actions";
-        actions.append(
-          makeButton("试玩", "btn-blue", () => openPreview(game)),
-          makeButton("复制分享", "btn-green", () => copyShareText(getShareText(game), game)),
-          makeButton("AI 修改", "btn-primary", () => openEdit(game)),
-          makeButton("下载", "btn-green", () => downloadGame(game)),
-          makeButton("重命名", "btn-ghost", () => renameGame(game)),
-          makeButton("删除", "btn-danger", () => deleteGame(game))
-        );
-
-        row.append(info, actions);
+        row.append(deleteButton, thumb);
         return row;
       }
 
-      function makeButton(text, className, onClick) {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = className;
-        button.textContent = text;
-        button.addEventListener("click", onClick);
-        return button;
+      function createGameThumb(game) {
+        const thumb = document.createElement("div");
+        thumb.className = "game-thumb";
+        const colors = getThumbColors(game);
+        thumb.style.setProperty("--thumb-a", colors[0]);
+        thumb.style.setProperty("--thumb-b", colors[1]);
+        thumb.style.setProperty("--thumb-c", colors[2]);
+
+        const thumbnail = getRealThumbnail(game);
+        if (thumbnail) {
+          const img = document.createElement("img");
+          img.alt = `${game.title} 预览图`;
+          img.loading = "lazy";
+          img.src = thumbnail;
+          thumb.appendChild(img);
+        } else {
+          thumb.classList.add("is-missing-thumb");
+          const fallback = document.createElement("div");
+          fallback.className = "thumb-fallback";
+          fallback.setAttribute("aria-hidden", "true");
+          thumb.appendChild(fallback);
+        }
+
+        return thumb;
+      }
+
+      function getThumbColors(game) {
+        const palettes = [
+          ["#ff4f3f", "#ffe500", "#00c2ff"],
+          ["#3157ff", "#00c875", "#ffe86b"],
+          ["#ff6bd6", "#ff4f3f", "#fff8e8"],
+          ["#00c2ff", "#3157ff", "#ff6bd6"],
+          ["#78ad6f", "#f4c96b", "#e7a6a8"]
+        ];
+        const key = String(game.title || game.gameName || game.id || "");
+        let hash = 0;
+        for (let index = 0; index < key.length; index += 1) {
+          hash = (hash * 31 + key.charCodeAt(index)) >>> 0;
+        }
+        return palettes[hash % palettes.length];
+      }
+
+      function getRealThumbnail(value) {
+        const thumbnail = typeof value === "string" ? value : value?.thumbnail;
+        if (!thumbnail || isLegacyThumbnail(thumbnail)) return "";
+        return thumbnail;
+      }
+
+      function isLegacyThumbnail(thumbnail) {
+        return /^data:image\/svg\+xml/i.test(String(thumbnail || ""));
       }
 
       function buildViralMeta(title, extraText, data = {}, existing = {}) {
@@ -1438,7 +1553,8 @@
           hook,
           viralTags,
           defaultShareText,
-          lastResult: existing.lastResult || null
+          lastResult: existing.lastResult || null,
+          thumbnail: getRealThumbnail(data) || getRealThumbnail(existing)
         };
       }
 
@@ -1586,15 +1702,242 @@
         els.gamePreview.removeAttribute("srcdoc");
         els.gamePreview.removeAttribute("sandbox");
         els.gamePreview.src = currentPreviewUrl;
+        els.gamePreview.onload = () => {
+          setTimeout(captureCurrentPreviewThumbnail, 1000);
+        };
       }
 
       function clearPreviewFrame() {
+        els.gamePreview.onload = null;
         els.gamePreview.removeAttribute("srcdoc");
         els.gamePreview.src = "about:blank";
         if (currentPreviewUrl) {
           URL.revokeObjectURL(currentPreviewUrl);
           currentPreviewUrl = "";
         }
+      }
+
+      async function captureCurrentPreviewThumbnail() {
+        if (!currentPreview || hasRealThumbnail(currentPreview)) return;
+        try {
+          const doc = els.gamePreview.contentDocument;
+          if (!doc) return;
+          const image = captureCanvasThumbnail(doc) || await captureDomThumbnail(doc) || await captureThumbnailForGame(currentPreview);
+          if (!image || image.length < 2000) return;
+          const updated = {
+            ...currentPreview,
+            thumbnail: image,
+            updatedAt: new Date().toISOString()
+          };
+          currentPreview = updated;
+          await putGame(updated);
+          await refreshGames();
+        } catch (error) {
+        }
+      }
+
+      function hasRealThumbnail(game) {
+        return Boolean(getRealThumbnail(game));
+      }
+
+      function scheduleMissingThumbnails(list) {
+        for (const game of list) {
+          if (!game?.id || !game.html || hasRealThumbnail(game)) continue;
+          const key = `${game.id}:${game.version || 1}:${game.updatedAt || ""}`;
+          if (thumbnailCaptureAttempted.has(key)) continue;
+          thumbnailCaptureAttempted.add(key);
+          thumbnailCaptureQueue.push({ id: game.id, key });
+        }
+        if (!thumbnailCaptureRunning && thumbnailCaptureQueue.length) {
+          window.setTimeout(processThumbnailQueue, 250);
+        }
+      }
+
+      async function processThumbnailQueue() {
+        if (thumbnailCaptureRunning) return;
+        thumbnailCaptureRunning = true;
+        try {
+          const workers = Array.from(
+            { length: Math.min(THUMBNAIL_CAPTURE_CONCURRENCY, thumbnailCaptureQueue.length) },
+            () => processThumbnailWorker()
+          );
+          await Promise.all(workers);
+        } finally {
+          thumbnailCaptureRunning = false;
+          if (thumbnailCaptureQueue.length) {
+            window.setTimeout(processThumbnailQueue, 0);
+          }
+        }
+      }
+
+      async function processThumbnailWorker() {
+        while (thumbnailCaptureQueue.length) {
+          const queued = thumbnailCaptureQueue.shift();
+          const game = games.find((item) => item.id === queued.id);
+          if (!game || !game.html || hasRealThumbnail(game)) continue;
+          const image = await captureThumbnailForGame(game);
+          if (!image || image.length < 2000) {
+            thumbnailCaptureAttempted.delete(queued.key);
+            continue;
+          }
+          const latest = games.find((item) => item.id === queued.id);
+          if (!latest || latest.version !== game.version || latest.updatedAt !== game.updatedAt) continue;
+          const updated = { ...latest, thumbnail: image };
+          const index = games.findIndex((item) => item.id === updated.id);
+          if (index >= 0) games[index] = updated;
+          if (currentPreview?.id === updated.id) currentPreview = { ...currentPreview, thumbnail: image };
+          await putGame(updated);
+          updateCardThumbnail(updated);
+        }
+      }
+
+      function updateCardThumbnail(game) {
+        const row = Array.from(els.gameList.querySelectorAll(".game-row"))
+          .find((item) => item.dataset.gameId === String(game.id));
+        if (!row) return;
+        const thumb = row.querySelector(".game-thumb");
+        if (!thumb) return;
+        let img = thumb.querySelector("img");
+        if (!img) {
+          img = document.createElement("img");
+          const title = thumb.querySelector("h3");
+          thumb.insertBefore(img, title || null);
+        }
+        thumb.classList.remove("is-missing-thumb");
+        thumb.querySelector(".thumb-fallback")?.remove();
+        img.alt = `${game.title} 预览图`;
+        img.loading = "lazy";
+        img.src = getRealThumbnail(game);
+      }
+
+      async function captureThumbnailForGame(game) {
+        try {
+          const data = await requestJson("/api/thumbnail", {
+            method: "POST",
+            body: { title: game.title, html: game.html }
+          });
+          if (getRealThumbnail(data.thumbnail) && data.thumbnail.length > 2000) {
+            return data.thumbnail;
+          }
+        } catch (error) {
+        }
+        return captureThumbnailInBrowser(game);
+      }
+
+      function captureThumbnailInBrowser(game) {
+        return new Promise((resolve) => {
+          let settled = false;
+          let url = "";
+          const frame = document.createElement("iframe");
+
+          const cleanup = (image) => {
+            if (settled) return;
+            settled = true;
+            frame.onload = null;
+            frame.remove();
+            if (url) URL.revokeObjectURL(url);
+            resolve(image || "");
+          };
+
+          frame.title = "游戏截图生成";
+          frame.tabIndex = -1;
+          frame.scrolling = "no";
+          frame.setAttribute("aria-hidden", "true");
+          Object.assign(frame.style, {
+            position: "fixed",
+            width: "960px",
+            height: "540px",
+            left: "-12000px",
+            top: "0",
+            border: "0",
+            pointerEvents: "none",
+            opacity: "0.01"
+          });
+
+          frame.onload = () => {
+            window.setTimeout(async () => {
+              try {
+                const doc = frame.contentDocument;
+                const image = doc ? (captureCanvasThumbnail(doc) || await captureDomThumbnail(doc)) : "";
+                cleanup(image);
+              } catch (error) {
+                cleanup("");
+              }
+            }, 1100);
+          };
+
+          try {
+            url = URL.createObjectURL(new Blob([game.html], { type: "text/html;charset=utf-8" }));
+            document.body.appendChild(frame);
+            frame.src = url;
+            window.setTimeout(() => cleanup(""), 5200);
+          } catch (error) {
+            cleanup("");
+          }
+        });
+      }
+
+      function captureCanvasThumbnail(doc) {
+        try {
+          const canvas = doc.querySelector("canvas");
+          if (!canvas || !canvas.width || !canvas.height) return "";
+          const thumb = document.createElement("canvas");
+          thumb.width = 480;
+          thumb.height = 270;
+          const ctx = thumb.getContext("2d");
+          ctx.fillStyle = "#fff8e8";
+          ctx.fillRect(0, 0, thumb.width, thumb.height);
+          const scale = Math.min(thumb.width / canvas.width, thumb.height / canvas.height);
+          const width = canvas.width * scale;
+          const height = canvas.height * scale;
+          ctx.drawImage(canvas, (thumb.width - width) / 2, (thumb.height - height) / 2, width, height);
+          return thumb.toDataURL("image/jpeg", 0.72);
+        } catch (error) {
+          return "";
+        }
+      }
+
+      function captureDomThumbnail(doc) {
+        return new Promise((resolve) => {
+          try {
+            const win = doc.defaultView || window;
+            const width = Math.max(320, Math.min(960, Math.round(win.innerWidth || doc.documentElement.clientWidth || 480)));
+            const height = Math.max(180, Math.min(540, Math.round(win.innerHeight || doc.documentElement.clientHeight || 270)));
+            const clone = (doc.body || doc.documentElement).cloneNode(true);
+            clone.querySelectorAll("script").forEach((script) => script.remove());
+            clone.setAttribute("xmlns", "http://www.w3.org/1999/xhtml");
+            const previousStyle = clone.getAttribute("style") || "";
+            clone.setAttribute("style", `${previousStyle}; margin:0; width:${width}px; height:${height}px; overflow:hidden;`);
+            const styles = Array.from(doc.querySelectorAll("style")).map((style) => style.textContent || "").join("\n");
+            const body = new XMLSerializer().serializeToString(clone);
+            const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+  <foreignObject width="100%" height="100%">
+    <style xmlns="http://www.w3.org/1999/xhtml">${styles.replace(/</g, "&lt;")}</style>
+    ${body}
+  </foreignObject>
+</svg>`.trim();
+            const image = new Image();
+            image.onload = () => {
+              try {
+                const thumb = document.createElement("canvas");
+                thumb.width = 480;
+                thumb.height = 270;
+                const ctx = thumb.getContext("2d");
+                ctx.fillStyle = "#fff8e8";
+                ctx.fillRect(0, 0, thumb.width, thumb.height);
+                ctx.drawImage(image, 0, 0, thumb.width, thumb.height);
+                resolve(thumb.toDataURL("image/jpeg", 0.72));
+              } catch (error) {
+                resolve("");
+              }
+            };
+            image.onerror = () => resolve("");
+            image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+          } catch (error) {
+            resolve("");
+          }
+        });
       }
 
       async function repairPreview() {
@@ -1616,6 +1959,8 @@
               instruction: [
                 "修复这个游戏在 iframe 试玩窗口中的显示问题：白屏、首屏大面积空白、主要游戏内容被空白结果区推到下方、或需要滚动才能开始玩。",
                 "要求：启动后必须立刻显示可见且可操作的游戏画面；主游戏卡片、画布、棋盘、滑块、开始按钮或答题控件必须在首屏内；空的结果/记录/状态区要隐藏或压缩，不能占据大块高度；如果脚本报错请修复；如果没有报错但 body/canvas 为空，请补齐 DOM、Canvas 尺寸和首帧绘制；不要使用外部资源、import、fetch、localStorage、sessionStorage 或 module script；保留完整单文件 HTML。",
+                "如果游戏在玩家没有有效点击、按键、触摸或开始操作前就 Game Over、失败或 0 分结算，必须改为 ready/start 状态；首次有效输入后至少 1.5 秒宽限；初始球、敌人、障碍、失败线和碰撞阈值必须公平，不能重叠或一开局就在失败区。",
+                "如果是连连看、消消乐、三消、配对消除或动物消除游戏：玩家选中一对/一组合法相同图案后，必须立刻更新内部 board 数据并重绘棋盘；被消除的格子要明显清空、淡出或移除；需要下落玩法时必须执行重力下落和补新块；不能只显示“消除成功”但棋盘不变；消除后要解除选中状态并允许继续选择。",
                 "已捕获错误：",
                 errorText,
                 "iframe 自检数据：",
@@ -1628,7 +1973,8 @@
             ...currentPreview,
             html: data.html,
             version: Number(currentPreview.version || 1) + 1,
-            updatedAt: new Date().toISOString()
+            updatedAt: new Date().toISOString(),
+            thumbnail: ""
           };
           await putGame(updated);
           await refreshGames();
@@ -1666,9 +2012,149 @@
       }
 
       function instrumentPreviewHtml(html) {
+        const previewFitStyle = `<style id="ai-preview-fit-style">
+html,
+body {
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+}
+
+body {
+  min-width: 0 !important;
+  min-height: 0 !important;
+}
+
+#ai-preview-fit-stage {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  display: block !important;
+  overflow: hidden !important;
+}
+
+#ai-preview-fit-root {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  display: block !important;
+  max-width: none !important;
+  max-height: none !important;
+  transform-origin: center center !important;
+  will-change: transform;
+}
+</style>`;
         const script = `<script>
 (function(){
   var probeCount = 0;
+  var fitObserver = null;
+  var fitRaf = 0;
+
+  function shouldKeepOutsideFit(node) {
+    if (!node || node.nodeType !== 1) return false;
+    var tag = String(node.tagName || "").toUpperCase();
+    return tag === "SCRIPT" || tag === "STYLE" || tag === "LINK" || tag === "META" || tag === "TITLE" || node.id === "ai-preview-fit-stage";
+  }
+
+  function ensurePreviewFitRoot() {
+    if (!document.body) return null;
+    var stage = document.getElementById("ai-preview-fit-stage");
+    var root = document.getElementById("ai-preview-fit-root");
+    if (!stage) {
+      stage = document.createElement("div");
+      stage.id = "ai-preview-fit-stage";
+      root = document.createElement("div");
+      root.id = "ai-preview-fit-root";
+      stage.appendChild(root);
+      Array.prototype.slice.call(document.body.childNodes).forEach(function(node) {
+        if (node === stage || shouldKeepOutsideFit(node)) return;
+        root.appendChild(node);
+      });
+      document.body.appendChild(stage);
+    } else if (!root) {
+      root = document.createElement("div");
+      root.id = "ai-preview-fit-root";
+      stage.appendChild(root);
+    }
+    if (!fitObserver && window.MutationObserver) {
+      fitObserver = new MutationObserver(function(records) {
+        var moved = false;
+        records.forEach(function(record) {
+          Array.prototype.slice.call(record.addedNodes || []).forEach(function(node) {
+            if (!root || !document.body || node === stage || node.parentNode !== document.body || shouldKeepOutsideFit(node)) return;
+            root.appendChild(node);
+            moved = true;
+          });
+        });
+        if (moved) schedulePreviewFit();
+      });
+      fitObserver.observe(document.body, { childList: true });
+    }
+    return root;
+  }
+
+  function measurePreviewContent(root) {
+    var oldTransform = root.style.transform;
+    var oldWidth = root.style.width;
+    var oldHeight = root.style.height;
+    root.style.transform = "none";
+    root.style.setProperty("left", "0", "important");
+    root.style.setProperty("top", "0", "important");
+    root.style.width = "auto";
+    root.style.height = "auto";
+    var rootRect = root.getBoundingClientRect();
+    var width = Math.max(root.scrollWidth || 0, root.offsetWidth || 0, Math.ceil(rootRect.width || 0), 1);
+    var height = Math.max(root.scrollHeight || 0, root.offsetHeight || 0, Math.ceil(rootRect.height || 0), 1);
+    Array.prototype.slice.call(root.querySelectorAll("*")).forEach(function(node) {
+      if (!isNodeVisible(node)) return;
+      var rect = node.getBoundingClientRect && node.getBoundingClientRect();
+      if (!rect) return;
+      width = Math.max(width, Math.ceil(rect.right - rootRect.left));
+      height = Math.max(height, Math.ceil(rect.bottom - rootRect.top));
+    });
+    root.style.transform = oldTransform;
+    root.style.width = oldWidth;
+    root.style.height = oldHeight;
+    root.style.setProperty("left", "50%", "important");
+    root.style.setProperty("top", "50%", "important");
+    return { width: width, height: height };
+  }
+
+  function applyPreviewFit() {
+    fitRaf = 0;
+    var root = ensurePreviewFitRoot();
+    if (!root) return;
+    var viewportWidth = window.innerWidth || document.documentElement.clientWidth || 1;
+    var viewportHeight = window.innerHeight || document.documentElement.clientHeight || 1;
+    var size = measurePreviewContent(root);
+    var scale = Math.min(viewportWidth / size.width, viewportHeight / size.height, 1);
+    if (!isFinite(scale) || scale <= 0) scale = 1;
+    root.style.width = size.width + "px";
+    root.style.height = size.height + "px";
+    root.style.setProperty("left", "50%", "important");
+    root.style.setProperty("top", "50%", "important");
+    root.style.transform = "translate(-50%, -50%) scale(" + scale + ")";
+    root.setAttribute("data-preview-scale", String(Math.round(scale * 1000) / 1000));
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+  }
+
+  function schedulePreviewFit() {
+    if (fitRaf) cancelAnimationFrame(fitRaf);
+    fitRaf = requestAnimationFrame(applyPreviewFit);
+  }
+
+  function startPreviewFit() {
+    schedulePreviewFit();
+    setTimeout(schedulePreviewFit, 80);
+    setTimeout(schedulePreviewFit, 500);
+    setTimeout(schedulePreviewFit, 1500);
+  }
+
   function send(type, message, source, lineno, colno) {
     try {
       parent.postMessage({
@@ -1776,6 +2262,8 @@
     var canvases = canvasReport();
     var layout = layoutReport(canvases);
     var hasVisibleCanvas = canvases.some(function(item) { return item.visible && item.width > 0 && item.height > 0; });
+    var hasImmediateGameOver = /(game\\s*over|you\\s*(lost|lose|died)|failed|failure|游戏结束|挑战失败|失败了|你输了|再来一局)/i.test(bodyText)
+      && !/(点击开始|开始游戏|按键开始|press\\s+start|tap\\s+to\\s+start|ready|准备|start\\s+button)/i.test(bodyText);
     var reason = "";
     var looksBlank = false;
     if (!body || body.children.length === 0) {
@@ -1803,6 +2291,7 @@
           layout: layout,
           viewport: { width: window.innerWidth, height: window.innerHeight },
           needsScrollToPlay: layout.needsScrollToPlay,
+          hasImmediateGameOver: hasImmediateGameOver,
           looksBlank: looksBlank,
           reason: reason || "未发现明显空白"
         }
@@ -1816,23 +2305,32 @@
     var reason = event.reason;
     send("unhandledrejection", reason && (reason.stack || reason.message) || reason || "Unhandled promise rejection");
   });
+  window.addEventListener("resize", schedulePreviewFit);
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", probe);
+    document.addEventListener("DOMContentLoaded", function() {
+      setTimeout(startPreviewFit, 0);
+      setTimeout(probe, 80);
+    });
   } else {
-    setTimeout(probe, 0);
+    setTimeout(startPreviewFit, 0);
+    setTimeout(probe, 80);
   }
-  window.addEventListener("load", function() { setTimeout(probe, 80); });
+  window.addEventListener("load", function() {
+    setTimeout(startPreviewFit, 0);
+    setTimeout(probe, 120);
+  });
   setTimeout(probe, 1200);
   setTimeout(probe, 3200);
 })();
 <\/script>`;
+        const injection = previewFitStyle + script;
         if (/<head[^>]*>/i.test(html)) {
-          return html.replace(/<head([^>]*)>/i, `<head$1>${script}`);
+          return html.replace(/<head([^>]*)>/i, `<head$1>${injection}`);
         }
         if (/<html[^>]*>/i.test(html)) {
-          return html.replace(/<html([^>]*)>/i, `<html$1><head>${script}</head>`);
+          return html.replace(/<html([^>]*)>/i, `<html$1><head>${injection}</head>`);
         }
-        return script + html;
+        return injection + html;
       }
 
       function showPreviewNotice(text, type) {
